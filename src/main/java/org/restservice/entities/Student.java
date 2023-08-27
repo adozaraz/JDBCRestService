@@ -5,9 +5,8 @@ import java.util.UUID;
 
 public class Student {
     private UUID studentId;
-    private String lastName;
-
     private String firstName;
+    private String lastName;
 
     public Student() {
         this.studentId = UUID.randomUUID();

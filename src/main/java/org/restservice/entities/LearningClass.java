@@ -27,8 +27,8 @@ public class LearningClass {
     }
 
 
-    public UUID getLearningClassId() {
-        return learningClassId;
+    public String getLearningClassId() {
+        return learningClassId.toString();
     }
 
     public void setLearningClassId(UUID learningClassId) {

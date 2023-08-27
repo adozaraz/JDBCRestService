@@ -8,17 +8,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class StudentRepositoryImplementation implements StudentRepository {
+public class StudentRepositoryImpl implements StudentRepository {
 
     private enum SQLUser {
-        GET("SELECT u.studentId, u.firstName, u.lastName FROM student AS u WHERE u.studentId = (?)"),
-        GET_ALL("SELECT * FROM student"),
-        GET_BY_FIRST("SELECT * FROM student where firstName = (?)"),
-        GET_BY_LAST("SELECT * FROM student where lastName = (?)"),
-        GET_BY_FIRST_AND_LAST("SELECT * FROM student where firstName = (?) AND lastName = (?)"),
-        INSERT("INSERT INTO student (studentId, firstName, lastName) VALUES ((?), (?), (?)) RETURNING studentId"),
-        UPDATE("UPDATE student SET firstName = (?), lastName = (?) WHERE id = (?) RETURNING studentId"),
-        DELETE("DELETE FROM student WHERE studentId = (?) AND firstName = (?) AND lastName = (?) RETURNING studentId");
+        GET("SELECT u.studentId, u.firstName, u.lastName FROM students AS u WHERE u.studentId = (?)"),
+        GET_ALL("SELECT * FROM students"),
+        GET_BY_FIRST("SELECT * FROM students where firstName = (?)"),
+        GET_BY_LAST("SELECT * FROM students where lastName = (?)"),
+        GET_BY_FIRST_AND_LAST("SELECT * FROM students where firstName = (?) AND lastName = (?)"),
+        INSERT("INSERT INTO students (studentId, firstName, lastName) VALUES ((?), (?), (?)) RETURNING studentId"),
+        UPDATE("UPDATE students SET firstName = (?), lastName = (?) WHERE studentId = (?) RETURNING studentId"),
+        DELETE("DELETE FROM students WHERE studentId = (?) AND firstName = (?) AND lastName = (?) RETURNING studentId");
 
         final String QUERY;
 
@@ -29,7 +29,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
 
     final Connection connection;
 
-    public StudentRepositoryImplementation(Connection connection) {
+    public StudentRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 

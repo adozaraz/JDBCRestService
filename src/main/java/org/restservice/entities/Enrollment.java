@@ -26,8 +26,8 @@ public class Enrollment {
         this.learningClass = learningClass;
     }
 
-    public UUID getEnrollmentId() {
-        return enrollmentId;
+    public String getEnrollmentId() {
+        return enrollmentId.toString();
     }
 
     public void setEnrollmentId(UUID enrollmentId) {
