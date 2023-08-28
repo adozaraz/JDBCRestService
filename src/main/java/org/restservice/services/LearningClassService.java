@@ -6,7 +6,7 @@ import org.restservice.repositories.LearningClassRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public class LearningClassService {
+public class LearningClassService implements Service<LearningClass, UUID> {
     private final LearningClassRepository learningClassRepository;
     private final EnrollmentService enrollmentService;
 
@@ -15,15 +15,19 @@ public class LearningClassService {
         this.enrollmentService = enrollmentService;
     }
 
-    public boolean createLearningClass(LearningClass learningClass) {
+    @Override
+    public boolean create(LearningClass learningClass) {
         return this.learningClassRepository.create(learningClass);
     }
 
-    public Optional<LearningClass> getLearningClass(UUID uuid) { return this.learningClassRepository.read(uuid); }
+    @Override
+    public Optional<LearningClass> read(UUID uuid) { return this.learningClassRepository.read(uuid); }
 
-    public boolean updateLearningClass(LearningClass learningClass) { return this.learningClassRepository.update(learningClass); }
+    @Override
+    public boolean update(LearningClass learningClass) { return this.learningClassRepository.update(learningClass); }
 
-    public boolean deleteLearningClass(LearningClass learningClass) {
+    @Override
+    public boolean delete(LearningClass learningClass) {
         if (this.enrollmentService.deleteEnrollmentByLearningClassId(learningClass.getLearningClassId())) return this.learningClassRepository.delete(learningClass);
         else return false;
     }

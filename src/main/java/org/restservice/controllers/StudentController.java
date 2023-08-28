@@ -49,7 +49,7 @@ public class StudentController extends HttpServlet {
                         response.setStatus(HttpServletResponse.SC_OK);
                     } catch (IOException e) {
                         e.printStackTrace();
-                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     }
                 } else response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
@@ -72,7 +72,7 @@ public class StudentController extends HttpServlet {
                 UUID studentId = UUID.fromString(request.getParameter("studentId"));
                 String firstName = request.getParameter("firstName");
                 String lastName = request.getParameter("lastName");
-                if (service.update(new Student(studentId, firstName, lastName))) response.setStatus(HttpServletResponse.SC_OK);
+                if (service.delete(new Student(studentId, firstName, lastName))) response.setStatus(HttpServletResponse.SC_OK);
                 else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
         });
@@ -95,7 +95,7 @@ public class StudentController extends HttpServlet {
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
         });
@@ -124,7 +124,7 @@ public class StudentController extends HttpServlet {
                         }
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
         });
@@ -146,7 +146,7 @@ public class StudentController extends HttpServlet {
                         }
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
         });
@@ -168,7 +168,7 @@ public class StudentController extends HttpServlet {
                         }
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
         });

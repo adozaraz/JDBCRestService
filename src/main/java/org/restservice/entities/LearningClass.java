@@ -8,10 +8,16 @@ public class LearningClass {
     private String title;
     private String description;
 
-    public void setLearningClassId() {
+    public LearningClass() {
         this.learningClassId = UUID.randomUUID();
         this.title = null;
         this.description = null;
+    }
+
+    public LearningClass(String title, String description) {
+        this.learningClassId = UUID.randomUUID();
+        this.title = title;
+        this.description = description;
     }
 
     public LearningClass(UUID learningClassId, String title, String description) {

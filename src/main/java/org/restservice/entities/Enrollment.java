@@ -14,6 +14,12 @@ public class Enrollment {
         this.learningClass = null;
     }
 
+    public Enrollment(Student student, LearningClass learningClass) {
+        this.enrollmentId = UUID.randomUUID();
+        this.student = student;
+        this.learningClass = learningClass;
+    }
+
     public Enrollment(UUID enrollmentId, Student student, LearningClass learningClass) {
         this.enrollmentId = enrollmentId;
         this.student = student;
