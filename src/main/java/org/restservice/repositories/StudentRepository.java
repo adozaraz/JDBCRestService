@@ -11,6 +11,4 @@ public interface StudentRepository extends DAO<Student, UUID> {
     Optional<Student> findByFirstName(String firstName);
     Optional<Student> findByLastName(String lastName);
     Optional<Student> findByFullName(String firstName, String lastName);
-    Iterable<Boolean> saveAll(Iterable<Student> users);
-
 }

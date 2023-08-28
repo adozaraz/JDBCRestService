@@ -193,15 +193,4 @@ public class StudentRepositoryImpl implements StudentRepository {
 
         return result;
     }
-
-    @Override
-    public Iterable<Boolean> saveAll(Iterable<Student> students) {
-        ArrayList<Boolean> result = new ArrayList<>();
-
-        for (Student student : students) {
-            result.add(this.create(student));
-        }
-
-        return result;
-    }
 }

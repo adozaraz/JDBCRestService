@@ -18,7 +18,9 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         GET("SELECT e.enrollmentId, s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.enrollmentId = (?)"),
         INSERT("INSERT INTO enrollments (enrollmentId, student, learningClass) VALUES ((?), (?), (?)) RETURNING enrollmentId"),
         UPDATE("UPDATE enrollments SET student = (?), learningClass = (?) WHERE enrollmentId = (?) RETURNING enrollmentId"),
-        DELETE("DELETE FROM enrollments WHERE enrollmentId = (?) AND learningClass = (?) AND student = (?) RETURNING enrollmentId");
+        DELETE("DELETE FROM enrollments WHERE enrollmentId = (?) AND learningClass = (?) AND student = (?) RETURNING enrollmentId"),
+        DELETE_BY_STUDENT_ID("DELETE FROM enrollments WHERE student = (?) RETURNING enrollmentId"),
+        DELETE_BY_LEARNING_CLASS_ID("DELETE FROM enrollments WHERE learningClass = (?) RETURNING enrollmentId");
 
         final String QUERY;
 
@@ -88,6 +90,30 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
             statement.setString(1, enrollment.getEnrollmentId());
             statement.setString(2, enrollment.getStudent().getStudentId());
             statement.setString(3, enrollment.getLearningClass().getLearningClassId());
+            result = statement.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean deleteByStudentId(String studentId) {
+        boolean result = false;
+        try (PreparedStatement statement = connection.prepareStatement(SQLUser.DELETE_BY_STUDENT_ID.QUERY)) {
+            statement.setString(1, studentId);
+            result = statement.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean deleteByLearningClassId(String learningClassId) {
+        boolean result = false;
+        try (PreparedStatement statement = connection.prepareStatement(SQLUser.DELETE_BY_LEARNING_CLASS_ID.QUERY)) {
+            statement.setString(1, learningClassId);
             result = statement.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();

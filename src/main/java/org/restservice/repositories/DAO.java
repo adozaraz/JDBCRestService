@@ -1,5 +1,7 @@
 package org.restservice.repositories;
 
+import org.restservice.entities.Student;
+
 import java.util.Optional;
 
 public interface DAO<Entity, Key> {

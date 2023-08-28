@@ -44,3 +44,5 @@ SELECT e.enrollmentId, s.studentId, s.firstName, s.lastName, l.learningClassId, 
 INSERT INTO enrollments (enrollmentId, student, learningClass) VALUES ((?), (?), (?)) RETURNING enrollmentId;
 UPDATE enrollments SET student = (?), learningClass = (?) WHERE enrollmentId = (?) RETURNING enrollmentId;
 DELETE FROM enrollments WHERE enrollmentId = (?) AND learningClass = (?) AND student = (?) RETURNING enrollmentId;
+DELETE FROM enrollments WHERE student = (?) RETURNING enrollmentId;
+DELETE FROM enrollments WHERE learningClass = (?) RETURNING enrollmentId;
