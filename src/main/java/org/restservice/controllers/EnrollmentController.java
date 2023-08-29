@@ -17,9 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @WebServlet(
         name = "EnrollmentController",
@@ -44,7 +42,7 @@ public class EnrollmentController extends HttpServlet {
                 Optional<Student> student = studentService.read(studentId);
                 Optional<LearningClass> learningClass = learningClassService.read(learningClassId);
                 if (student.isPresent() && learningClass.isPresent()) {
-                    if (service.create(new Enrollment(student.get(), learningClass.get()))) response.setStatus(HttpServletResponse.SC_OK);
+                    if (service.create(new Enrollment(List.of(student.get()), List.of(learningClass.get())))) response.setStatus(HttpServletResponse.SC_OK);
                     else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 } else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
@@ -78,7 +76,7 @@ public class EnrollmentController extends HttpServlet {
                 Optional<Student> student = studentService.read(studentId);
                 Optional<LearningClass> learningClass = learningClassService.read(learningClassId);
                 if (student.isPresent() && learningClass.isPresent()) {
-                    if (service.update(new Enrollment(enrollmentId, student.get(), learningClass.get()))) response.setStatus(HttpServletResponse.SC_OK);
+                    if (service.update(new Enrollment(enrollmentId, List.of(student.get()), List.of(learningClass.get())))) response.setStatus(HttpServletResponse.SC_OK);
                     else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 }
                 else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -94,7 +92,7 @@ public class EnrollmentController extends HttpServlet {
                 Optional<Student> student = studentService.read(studentId);
                 Optional<LearningClass> learningClass = learningClassService.read(learningClassId);
                 if (student.isPresent() && learningClass.isPresent()) {
-                    if (service.delete(new Enrollment(enrollmentId, student.get(), learningClass.get()))) response.setStatus(HttpServletResponse.SC_OK);
+                    if (service.delete(new Enrollment(enrollmentId, List.of(student.get()), List.of(learningClass.get())))) response.setStatus(HttpServletResponse.SC_OK);
                     else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 }
                 else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
