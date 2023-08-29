@@ -128,6 +128,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         return result;
     }
 
+    @Override
     public Optional<Enrollment> getByStudent(UUID studentId) {
         Optional<Enrollment> result = Optional.empty();
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_STUDENT.QUERY)) {
@@ -153,6 +154,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         return result;
     }
 
+    @Override
     public Optional<Enrollment> getByLearningClass(UUID learningClassId) {
         Optional<Enrollment> result = Optional.empty();
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_LEARNING_CLASS.QUERY)) {

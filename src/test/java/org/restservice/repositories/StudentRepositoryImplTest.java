@@ -41,8 +41,4 @@ class StudentRepositoryImplTest {
     @Test
     void findByFullName() {
     }
-
-    @Test
-    void saveAll() {
-    }
 }
