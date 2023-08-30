@@ -2,7 +2,9 @@ package org.restservice.services;
 
 import org.restservice.entities.Student;
 import org.restservice.repositories.StudentRepository;
+import org.restservice.repositories.StudentRepositoryImpl;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +16,11 @@ public class StudentService implements Service<Student, UUID> {
 
     public StudentService(StudentRepository studentRepository, EnrollmentService enrollmentService) {
         this.studentRepository = studentRepository;
+        this.enrollmentService = enrollmentService;
+    }
+
+    public StudentService(Connection connection, EnrollmentService enrollmentService) {
+        this.studentRepository = new StudentRepositoryImpl(connection);
         this.enrollmentService = enrollmentService;
     }
 
@@ -34,21 +41,11 @@ public class StudentService implements Service<Student, UUID> {
 
     public Iterable<Student> findAll() { return this.studentRepository.findAll(); }
 
-    public Iterable<Student> findAllById(Iterable<UUID> ids) { return this.studentRepository.findAllById(ids); }
-
     public Optional<Student> findByFirstName(String firstName) { return this.studentRepository.findByFirstName(firstName); }
 
     public Optional<Student> findByLastName(String lastName) { return this.studentRepository.findByLastName(lastName); }
 
     public Optional<Student> findByFullName(String firstName, String lastName) { return this.studentRepository.findByFullName(firstName, lastName); }
 
-    public Iterable<Boolean> saveAll(Iterable<Student> students) {
-        ArrayList<Boolean> result = new ArrayList<>();
-
-        for (Student student : students) {
-            result.add(this.studentRepository.create(student));
-        }
-
-        return result;
-    }
+    public Optional<Student> getStudentWithAttendingClasses(UUID studentId) { return this.enrollmentService.getStudentWithAttendingClasses(studentId); }
 }

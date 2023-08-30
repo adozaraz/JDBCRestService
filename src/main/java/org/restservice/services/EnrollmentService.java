@@ -1,8 +1,12 @@
 package org.restservice.services;
 
 import org.restservice.entities.Enrollment;
+import org.restservice.entities.LearningClass;
+import org.restservice.entities.Student;
 import org.restservice.repositories.EnrollmentRepository;
+import org.restservice.repositories.EnrollmentRepositoryImpl;
 
+import java.sql.Connection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +16,8 @@ public class EnrollmentService implements Service<Enrollment, UUID> {
     public EnrollmentService(EnrollmentRepository repository) {
         this.repository = repository;
     }
+
+    public EnrollmentService(Connection connection) { this.repository = new EnrollmentRepositoryImpl(connection); }
 
     @Override
     public boolean create(Enrollment enrollment) {
@@ -33,6 +39,10 @@ public class EnrollmentService implements Service<Enrollment, UUID> {
     public boolean delete(Enrollment enrollment) {
         return this.repository.delete(enrollment);
     }
+
+    public Optional<Student> getStudentWithAttendingClasses(UUID studentId) { return this.repository.getByStudent(studentId); }
+
+    public Optional<LearningClass> getLearningClassWithAttendingStudents(UUID learningClassId) { return this.repository.getByLearningClass(learningClassId); }
 
     public boolean deleteEnrollmentByStudentId(String studentId) { return this.repository.deleteByStudentId(studentId); }
 

@@ -8,16 +8,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     final Connection connection;
 
     private enum SQLUser {
         GET("SELECT e.enrollmentId, s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.enrollmentId = (?)"),
-        GET_BY_STUDENT("SELECT e.enrollmentId, s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.student = (?)"),
-        GET_BY_LEARNING_CLASS("SELECT e.enrollmentId, s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.learningClass = (?)"),
+        GET_BY_STUDENT("SELECT s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.student = (?)"),
+        GET_BY_LEARNING_CLASS("SELECT s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.learningClass = (?)"),
         INSERT("INSERT INTO enrollments (enrollmentId, student, learningClass) VALUES ((?), (?), (?)) RETURNING enrollmentId"),
         UPDATE("UPDATE enrollments SET student = (?), learningClass = (?) WHERE enrollmentId = (?) RETURNING enrollmentId"),
         DELETE("DELETE FROM enrollments WHERE enrollmentId = (?) AND learningClass = (?) AND student = (?) RETURNING enrollmentId"),
@@ -40,8 +39,8 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         boolean result = false;
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.INSERT.QUERY)) {
             statement.setString(1, enrollment.getEnrollmentId());
-            statement.setString(2, enrollment.getStudent(0).getStudentId());
-            statement.setString(3, enrollment.getLearningClass(0).getLearningClassId());
+            statement.setString(2, enrollment.getStudent().getStudentId());
+            statement.setString(3, enrollment.getLearningClass().getLearningClassId());
             result = statement.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -55,9 +54,8 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET.QUERY)) {
             statement.setString(1, uuid.toString());
             final ResultSet rs = statement.executeQuery();
-            String enrollmentId = rs.getString("enrollmentId");
-            Enrollment tempResult = new Enrollment(enrollmentId);
-            while (rs.next()) {
+            if (rs.next()) {
+                String enrollmentId = rs.getString("enrollmentId");
                 String studentId = rs.getString("studentId");
                 String firstName = rs.getString("firstName");
                 String lastName = rs.getString("lastName");
@@ -66,10 +64,8 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
                 String description = rs.getString("description");
                 Student student = new Student(studentId, firstName, lastName);
                 LearningClass learningClass = new LearningClass(learningClassId, title, description);
-                if (tempResult.contains(student)) tempResult.addStudent(student);
-                if (tempResult.contains(learningClass)) tempResult.addLearningClass(learningClass);
+                result = Optional.of(new Enrollment(enrollmentId, student, learningClass));
             }
-            if (tempResult.getStudentsSize() != 0 && tempResult.getLearningClassesSize() != 0) result = Optional.of(tempResult);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -80,8 +76,8 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     public boolean update(Enrollment enrollment) {
         boolean result = false;
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.UPDATE.QUERY)) {
-            statement.setString(1, enrollment.getStudent(0).getStudentId());
-            statement.setString(2, enrollment.getLearningClass(0).getLearningClassId());
+            statement.setString(1, enrollment.getStudent().getStudentId());
+            statement.setString(2, enrollment.getLearningClass().getLearningClassId());
             statement.setString(3, enrollment.getEnrollmentId());
             result = statement.executeQuery().next();
         } catch (SQLException e) {
@@ -95,8 +91,8 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         boolean result = false;
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.DELETE.QUERY)) {
             statement.setString(1, enrollment.getEnrollmentId());
-            statement.setString(2, enrollment.getStudent(0).getStudentId());
-            statement.setString(3, enrollment.getLearningClass(0).getLearningClassId());
+            statement.setString(2, enrollment.getStudent().getStudentId());
+            statement.setString(3, enrollment.getLearningClass().getLearningClassId());
             result = statement.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -129,25 +125,28 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     }
 
     @Override
-    public Optional<Enrollment> getByStudent(UUID studentId) {
-        Optional<Enrollment> result = Optional.empty();
+    public Optional<Student> getByStudent(UUID studentId) {
+        Optional<Student> result = Optional.empty();
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_STUDENT.QUERY)) {
             statement.setString(1, studentId.toString());
             final ResultSet rs = statement.executeQuery();
-            String enrollmentId = rs.getString("enrollmentId");
-            Enrollment tempResult = new Enrollment(enrollmentId);
+            Set<LearningClass> learningClasses = new HashSet<>();
+            Student student = null;
             while (rs.next()) {
-                String firstName = rs.getString("firstName");
-                String lastName = rs.getString("lastName");
+                if (student == null) {
+                    String firstName = rs.getString("firstName");
+                    String lastName = rs.getString("lastName");
+                    student = new Student(studentId, firstName, lastName);
+                }
                 String learningClassId = rs.getString("learningClassId");
                 String title = rs.getString("title");
                 String description = rs.getString("description");
-                Student student = new Student(studentId, firstName, lastName);
-                LearningClass learningClass = new LearningClass(learningClassId, title, description);
-                if (tempResult.contains(student)) tempResult.addStudent(student);
-                if (tempResult.contains(learningClass)) tempResult.addLearningClass(learningClass);
+                learningClasses.add(new LearningClass(learningClassId, title, description));
             }
-            if (tempResult.getStudentsSize() != 0 && tempResult.getLearningClassesSize() != 0) result = Optional.of(tempResult);
+            if (student != null && !learningClasses.isEmpty()) {
+                student.setLearningClasses(learningClasses);
+                result = Optional.of(student);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -155,25 +154,28 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     }
 
     @Override
-    public Optional<Enrollment> getByLearningClass(UUID learningClassId) {
-        Optional<Enrollment> result = Optional.empty();
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_LEARNING_CLASS.QUERY)) {
+    public Optional<LearningClass> getByLearningClass(UUID learningClassId) {
+        Optional<LearningClass> result = Optional.empty();
+        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_STUDENT.QUERY)) {
             statement.setString(1, learningClassId.toString());
             final ResultSet rs = statement.executeQuery();
-            String enrollmentId = rs.getString("enrollmentId");
-            Enrollment tempResult = new Enrollment(enrollmentId);
+            Set<Student> attendingStudents = new HashSet<>();
+            LearningClass learningClass = null;
             while (rs.next()) {
+                if (learningClass == null) {
+                    String title = rs.getString("title");
+                    String description = rs.getString("description");
+                    learningClass = new LearningClass(learningClassId, title, description);
+                }
                 String studentId = rs.getString("studentId");
                 String firstName = rs.getString("firstName");
                 String lastName = rs.getString("lastName");
-                String title = rs.getString("title");
-                String description = rs.getString("description");
-                Student student = new Student(studentId, firstName, lastName);
-                LearningClass learningClass = new LearningClass(learningClassId, title, description);
-                if (tempResult.contains(student)) tempResult.addStudent(student);
-                if (tempResult.contains(learningClass)) tempResult.addLearningClass(learningClass);
+                attendingStudents.add(new Student(studentId, firstName, lastName));
             }
-            if (tempResult.getStudentsSize() != 0 && tempResult.getLearningClassesSize() != 0) result = Optional.of(tempResult);
+            if (learningClass != null && !attendingStudents.isEmpty()) {
+                learningClass.setAttendingStudents(attendingStudents);
+                result = Optional.of(learningClass);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

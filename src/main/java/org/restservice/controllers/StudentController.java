@@ -100,13 +100,6 @@ public class StudentController extends HttpServlet {
             }
         });
 
-        actionHashMap.put("getAllById", new Action<Student, UUID>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<Student, UUID> service) {
-                //some logic
-            }
-        });
-
         actionHashMap.put("getByFirstName", new Action<Student, UUID>() {
             @Override
             public void perform(HttpServletRequest request, HttpServletResponse response, Service<Student, UUID> service) {
@@ -170,13 +163,6 @@ public class StudentController extends HttpServlet {
                 } else {
                     response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
-            }
-        });
-
-        actionHashMap.put("saveAll", new Action<Student, UUID>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<Student, UUID> service) {
-                //some logic
             }
         });
 

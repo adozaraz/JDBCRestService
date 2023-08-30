@@ -118,26 +118,6 @@ public class StudentRepositoryImpl implements StudentRepository {
     }
 
     @Override
-    public Iterable<Student> findAllById(Iterable<UUID> ids) {
-        ArrayList<Student> result = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET.QUERY)) {
-            for (UUID id : ids) {
-                statement.setString(1, id.toString());
-                final ResultSet rs = statement.executeQuery();
-                if (rs.next()) {
-                    String firstName = rs.getString("firstName");
-                    String lastName = rs.getString("lastName");
-                    result.add(new Student(id, firstName, lastName));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-    @Override
     public Optional<Student> findByFirstName(String firstName) {
         Optional<Student> result = Optional.empty();
 

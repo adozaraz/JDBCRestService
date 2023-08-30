@@ -2,7 +2,9 @@ package org.restservice.services;
 
 import org.restservice.entities.LearningClass;
 import org.restservice.repositories.LearningClassRepository;
+import org.restservice.repositories.LearningClassRepositoryImpl;
 
+import java.sql.Connection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +14,11 @@ public class LearningClassService implements Service<LearningClass, UUID> {
 
     public LearningClassService(LearningClassRepository learningClassRepository, EnrollmentService enrollmentService) {
         this.learningClassRepository = learningClassRepository;
+        this.enrollmentService = enrollmentService;
+    }
+
+    public LearningClassService(Connection connection, EnrollmentService enrollmentService) {
+        this.learningClassRepository = new LearningClassRepositoryImpl(connection);
         this.enrollmentService = enrollmentService;
     }
 
@@ -31,4 +38,6 @@ public class LearningClassService implements Service<LearningClass, UUID> {
         if (this.enrollmentService.deleteEnrollmentByLearningClassId(learningClass.getLearningClassId())) return this.learningClassRepository.delete(learningClass);
         else return false;
     }
+
+    public Optional<LearningClass> getLearningClassWithAttendingStudents(UUID learningClassId) { return this.enrollmentService.getLearningClassWithAttendingStudents(learningClassId); }
 }

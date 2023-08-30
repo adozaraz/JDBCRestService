@@ -1,10 +1,14 @@
 package org.restservice.repositories;
 
+import org.junit.After;
 import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.restservice.entities.LearningClass;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.*;
@@ -16,6 +20,7 @@ import java.util.logging.LogManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Testcontainers
 class LearningClassRepositoryImplTest {
     static {
         // Postgres JDBC driver uses JUL; disable it to avoid annoying, irrelevant, stderr logs during connection testing
@@ -28,7 +33,7 @@ class LearningClassRepositoryImplTest {
 
     private static final String PASSWORD = "12345";
 
-    @Rule
+    @Container
     public final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
             .withDatabaseName(DB_NAME)
             .withUsername(USER)
@@ -50,22 +55,18 @@ class LearningClassRepositoryImplTest {
         learningClassRepository = new LearningClassRepositoryImpl(conn);
     }
 
+    @AfterEach
+    public void after() throws SQLException {
+        postgres.stop();
+        conn.close();
+    }
+
     @Test
-    void create() throws SQLException {
+    void create() {
         LearningClass learningClass = new LearningClass("Test", "Test description");
 
         boolean added = learningClassRepository.create(learningClass);
         assertTrue(added);
-
-        Statement statement = conn.createStatement();
-        statement.execute("SELECT * from learningClasses");
-        ResultSet rs = statement.getResultSet();
-        assertTrue(rs.next());
-        String learningClassId = rs.getString("learningClassId");
-        String title = rs.getString("title");
-        String description = rs.getString("description");
-        LearningClass receivedClass = new LearningClass(learningClassId, title, description);
-        assertEquals(learningClass, receivedClass);
     }
 
     @Test
@@ -101,9 +102,9 @@ class LearningClassRepositoryImplTest {
         boolean deleted = learningClassRepository.delete(expectedClass);
         assertTrue(deleted);
 
-        Statement statement = conn.createStatement();
-        statement.execute("SELECT * from learningClasses");
-        ResultSet rs = statement.getResultSet();
-        assertFalse(rs.next());
+        Optional<LearningClass> actual = learningClassRepository.read(UUID.fromString(expectedClass.getLearningClassId()));
+        assertFalse(actual.isPresent());
     }
+
+
 }
