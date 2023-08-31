@@ -2,9 +2,11 @@ package org.restservice.controllers;
 
 import com.google.gson.Gson;
 import org.restservice.entities.LearningClass;
+import org.restservice.entities.Student;
 import org.restservice.factories.Action;
 import org.restservice.services.LearningClassService;
 import org.restservice.services.Service;
+import org.restservice.services.StudentService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,7 +27,7 @@ public class LearningClassController extends HttpServlet {
 
     private final LearningClassService service;
 
-    private HashMap<String, Action<LearningClass, UUID>> actionHashMap = new HashMap<>();
+    private final HashMap<String, Action<LearningClass, UUID>> actionHashMap = new HashMap<>();
 
     public LearningClassController(LearningClassService service) {
         this.service = service;
@@ -69,6 +71,41 @@ public class LearningClassController extends HttpServlet {
                 String description = request.getParameter("description");
                 if (service.update(new LearningClass(learningClassId, title, description))) response.setStatus(HttpServletResponse.SC_OK);
                 else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            }
+        });
+
+        actionHashMap.put("delete", new Action<LearningClass, UUID>() {
+            @Override
+            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
+                String learningClassId = request.getParameter("learningClassId");
+                String title = request.getParameter("title");
+                String description = request.getParameter("description");
+                if (service.delete(new LearningClass(learningClassId, title, description))) response.setStatus(HttpServletResponse.SC_OK);
+                else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            }
+        });
+
+        actionHashMap.put("getWithStudentId", new Action<LearningClass, UUID>() {
+            @Override
+            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
+                if (service instanceof LearningClassService learningClassService) {
+                    Optional<LearningClass> learningClass = learningClassService.getLearningClassWithAttendingStudents(UUID.fromString(request.getParameter("learningClassId")));
+                    if (learningClass.isPresent()) {
+                        try {
+                            PrintWriter out = response.getWriter();
+                            out.println(learningClass.get());
+                            out.flush();
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        }
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    }
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
             }
         });
     }

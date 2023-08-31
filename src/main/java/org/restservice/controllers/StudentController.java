@@ -95,7 +95,7 @@ public class StudentController extends HttpServlet {
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }
         });
@@ -117,7 +117,7 @@ public class StudentController extends HttpServlet {
                         }
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }
         });
@@ -139,7 +139,7 @@ public class StudentController extends HttpServlet {
                         }
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }
         });
@@ -159,14 +159,38 @@ public class StudentController extends HttpServlet {
                             e.printStackTrace();
                             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         }
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }
         });
 
-
+        actionHashMap.put("getWithClasses", new Action<Student, UUID>() {
+            @Override
+            public void perform(HttpServletRequest request, HttpServletResponse response, Service<Student, UUID> service) {
+                if (service instanceof StudentService studentService) {
+                    Optional<Student> student = studentService.getStudentWithAttendingClasses(UUID.fromString(request.getParameter("studentId")));
+                    if (student.isPresent()) {
+                        try {
+                            PrintWriter out = response.getWriter();
+                            out.println(student.get());
+                            out.flush();
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        }
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    }
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            }
+        });
     }
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
