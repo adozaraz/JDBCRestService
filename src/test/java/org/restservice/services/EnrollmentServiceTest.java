@@ -4,10 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
 import org.restservice.repositories.EnrollmentRepository;
+import org.testcontainers.shaded.org.hamcrest.CoreMatchers;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -21,10 +23,8 @@ import static org.mockito.Mockito.when;
 
 class EnrollmentServiceTest {
 
-    @InjectMocks
     private EnrollmentService enrollmentService;
 
-    @Mock
     private EnrollmentRepository enrollmentRepository;
 
     private Student student;
@@ -35,6 +35,8 @@ class EnrollmentServiceTest {
     public void setUp() {
         student = new Student("Nikita", "Boradulin");
         learningClass = new LearningClass("Test", "Class desc");
+        this.enrollmentRepository = Mockito.mock(EnrollmentRepository.class);
+        this.enrollmentService = new EnrollmentService(enrollmentRepository);
     }
 
     @Test
@@ -48,7 +50,6 @@ class EnrollmentServiceTest {
     void read() {
         UUID uuid = UUID.randomUUID();
         when(enrollmentRepository.read(uuid)).thenReturn(Optional.of(new Enrollment(student, learningClass)));
-        when(enrollmentRepository.read(not(uuid))).thenReturn(Optional.empty());
 
         Optional<Enrollment> actualResult = enrollmentService.read(uuid);
         assertTrue(actualResult.isPresent());
@@ -62,7 +63,6 @@ class EnrollmentServiceTest {
     void update() {
         Enrollment enrollment = new Enrollment(student, learningClass);
         when(enrollmentRepository.update(enrollment)).thenReturn(true);
-        when(enrollmentRepository.update(not(enrollment))).thenReturn(false);
 
         boolean result = enrollmentService.update(enrollment);
         assertTrue(result);
@@ -74,7 +74,6 @@ class EnrollmentServiceTest {
     void delete() {
         Enrollment enrollment = new Enrollment(student, learningClass);
         when(enrollmentRepository.delete(enrollment)).thenReturn(true).thenReturn(false);
-        when(enrollmentRepository.delete(not(enrollment))).thenReturn(false);
 
         boolean result = enrollmentService.delete(new Enrollment());
         assertFalse(result);
@@ -87,7 +86,6 @@ class EnrollmentServiceTest {
     @Test
     void deleteEnrollmentByStudentId() {
         when(enrollmentRepository.deleteByStudentId(student.getStudentId())).thenReturn(true).thenReturn(false);
-        when(enrollmentRepository.deleteByStudentId(not(student.getStudentId()))).thenReturn(false);
 
         boolean result = enrollmentService.deleteEnrollmentByStudentId(UUID.randomUUID().toString());
         assertFalse(result);
@@ -100,7 +98,6 @@ class EnrollmentServiceTest {
     @Test
     void deleteEnrollmentByLearningClassId() {
         when(enrollmentRepository.deleteByLearningClassId(learningClass.getLearningClassId())).thenReturn(true).thenReturn(false);
-        when(enrollmentRepository.deleteByLearningClassId(not(learningClass.getLearningClassId()))).thenReturn(false);
 
         boolean result = enrollmentService.deleteEnrollmentByLearningClassId(UUID.randomUUID().toString());
         assertFalse(result);
@@ -120,7 +117,6 @@ class EnrollmentServiceTest {
         student.setLearningClasses(attendingClasses);
 
         when(enrollmentRepository.getByStudent(UUID.fromString(student.getStudentId()))).thenReturn(Optional.of(student));
-        when(enrollmentRepository.getByStudent(not(UUID.fromString(student.getStudentId())))).thenReturn(Optional.empty());
 
         Optional<Student> actualResult = enrollmentService.getStudentWithAttendingClasses(UUID.randomUUID());
         assertFalse(actualResult.isPresent());
@@ -139,7 +135,6 @@ class EnrollmentServiceTest {
         learningClass.setAttendingStudents(attendingStudents);
 
         when(enrollmentRepository.getByLearningClass(UUID.fromString(learningClass.getLearningClassId()))).thenReturn(Optional.of(learningClass));
-        when(enrollmentRepository.getByLearningClass(not(UUID.fromString(learningClass.getLearningClassId())))).thenReturn(Optional.empty());
 
         Optional<LearningClass> actualResult = enrollmentService.getLearningClassWithAttendingStudents(UUID.randomUUID());
         assertFalse(actualResult.isPresent());

@@ -53,6 +53,7 @@ public class LearningClassController extends HttpServlet {
                         String learningClassJson = new Gson().toJson(learningClass.get());
                         out.print(learningClassJson);
                         out.flush();
+                        response.setStatus(HttpServletResponse.SC_OK);
                     } catch (IOException e) {
                         e.printStackTrace();
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -85,7 +86,7 @@ public class LearningClassController extends HttpServlet {
             }
         });
 
-        actionHashMap.put("getWithStudentId", new Action<LearningClass, UUID>() {
+        actionHashMap.put("getWithStudents", new Action<LearningClass, UUID>() {
             @Override
             public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
                 if (service instanceof LearningClassService learningClassService) {
@@ -93,7 +94,8 @@ public class LearningClassController extends HttpServlet {
                     if (learningClass.isPresent()) {
                         try {
                             PrintWriter out = response.getWriter();
-                            out.println(learningClass.get());
+                            String learningClassJson = new Gson().toJson(learningClass.get());
+                            out.print(learningClassJson);
                             out.flush();
                             response.setStatus(HttpServletResponse.SC_OK);
                         } catch (IOException e) {
@@ -123,7 +125,7 @@ public class LearningClassController extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String actionType = request.getParameter("action");
         response.setContentType("application/json");
-        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         Action<LearningClass, UUID> action = actionHashMap.getOrDefault(actionType, new Action<LearningClass, UUID>() {
             @Override
             public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {

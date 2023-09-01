@@ -108,13 +108,16 @@ public class StudentController extends HttpServlet {
                     if (student.isPresent()) {
                         try {
                             PrintWriter out = response.getWriter();
-                            out.println(student.get());
+                            String studentJson = new Gson().toJson(student.get());
+                            out.println(studentJson);
                             out.flush();
                             response.setStatus(HttpServletResponse.SC_OK);
                         } catch (IOException e) {
                             e.printStackTrace();
                             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         }
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                     }
                 } else {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -130,13 +133,16 @@ public class StudentController extends HttpServlet {
                     if (student.isPresent()) {
                         try {
                             PrintWriter out = response.getWriter();
-                            out.println(student.get());
+                            String studentJson = new Gson().toJson(student.get());
+                            out.println(studentJson);
                             out.flush();
                             response.setStatus(HttpServletResponse.SC_OK);
                         } catch (IOException e) {
                             e.printStackTrace();
                             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         }
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                     }
                 } else {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -152,7 +158,8 @@ public class StudentController extends HttpServlet {
                     if (student.isPresent()) {
                         try {
                             PrintWriter out = response.getWriter();
-                            out.println(student.get());
+                            String studentJson = new Gson().toJson(student.get());
+                            out.println(studentJson);
                             out.flush();
                             response.setStatus(HttpServletResponse.SC_OK);
                         } catch (IOException e) {
@@ -176,7 +183,8 @@ public class StudentController extends HttpServlet {
                     if (student.isPresent()) {
                         try {
                             PrintWriter out = response.getWriter();
-                            out.println(student.get());
+                            String studentJson = new Gson().toJson(student.get());
+                            out.println(studentJson);
                             out.flush();
                             response.setStatus(HttpServletResponse.SC_OK);
                         } catch (IOException e) {
@@ -205,7 +213,7 @@ public class StudentController extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String actionType = request.getParameter("action");
         response.setContentType("application/json");
-        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         Action<Student, UUID> action = actionHashMap.getOrDefault(actionType, new Action<Student, UUID>() {
             @Override
             public void perform(HttpServletRequest request, HttpServletResponse response, Service<Student, UUID> service) {

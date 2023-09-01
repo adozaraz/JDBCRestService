@@ -21,20 +21,23 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 class LearningClassServiceTest {
 
-    @InjectMocks
     LearningClassService learningClassService;
 
-    @Mock
     private LearningClassRepository learningClassRepository;
 
-    @Mock
     private EnrollmentService enrollmentService;
+
+    @BeforeEach
+    public void setUp() {
+        learningClassRepository = mock(LearningClassRepository.class);
+        enrollmentService = mock(EnrollmentService.class);
+        learningClassService = new LearningClassService(learningClassRepository, enrollmentService);
+    }
 
     @Test
     void create() {
@@ -48,7 +51,6 @@ class LearningClassServiceTest {
         UUID learningClassId = UUID.randomUUID();
         LearningClass expected = new LearningClass(learningClassId, "Test", "Description");
         when(learningClassRepository.read(learningClassId)).thenReturn(Optional.of(expected));
-        when(learningClassRepository.read(not(learningClassId))).thenReturn(Optional.empty());
         Optional<LearningClass> learningClass = learningClassService.read(learningClassId);
         assertTrue(learningClass.isPresent());
         assertEquals(expected, learningClass.get());
@@ -60,7 +62,6 @@ class LearningClassServiceTest {
     @Test
     void update() {
         LearningClass toBeUpdated = new LearningClass("Test", "Blind");
-        when(learningClassRepository.update(not(toBeUpdated))).thenReturn(false);
         when(learningClassRepository.update(toBeUpdated)).thenReturn(true);
         boolean result = learningClassService.update(new LearningClass("Test", "Kill"));
         assertFalse(result);
@@ -72,7 +73,6 @@ class LearningClassServiceTest {
     @Test
     void delete() {
         LearningClass toBeDeleted = new LearningClass("Test", "Test");
-        when(learningClassRepository.delete(not(toBeDeleted))).thenReturn(false);
         when(learningClassRepository.delete(toBeDeleted)).thenReturn(true).thenReturn(false);
 
         boolean result = learningClassService.delete(new LearningClass("Test", "Lol"));
@@ -92,7 +92,6 @@ class LearningClassServiceTest {
         toBeFound.setAttendingStudents(attendingStudents);
 
         when(enrollmentService.getLearningClassWithAttendingStudents(UUID.fromString(toBeFound.getLearningClassId()))).thenReturn(Optional.of(toBeFound));
-        when(enrollmentService.getLearningClassWithAttendingStudents(not(UUID.fromString(toBeFound.getLearningClassId())))).thenReturn(Optional.empty());
 
         Optional<LearningClass> result = learningClassService.getLearningClassWithAttendingStudents(UUID.randomUUID());
         assertFalse(result.isPresent());

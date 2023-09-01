@@ -35,8 +35,8 @@ public class LearningClassService implements Service<LearningClass, UUID> {
 
     @Override
     public boolean delete(LearningClass learningClass) {
-        if (this.enrollmentService.deleteEnrollmentByLearningClassId(learningClass.getLearningClassId())) return this.learningClassRepository.delete(learningClass);
-        else return false;
+        this.enrollmentService.deleteEnrollmentByLearningClassId(learningClass.getLearningClassId());
+        return this.learningClassRepository.delete(learningClass);
     }
 
     public Optional<LearningClass> getLearningClassWithAttendingStudents(UUID learningClassId) { return this.enrollmentService.getLearningClassWithAttendingStudents(learningClassId); }

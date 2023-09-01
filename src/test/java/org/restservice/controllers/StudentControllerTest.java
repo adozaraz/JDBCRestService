@@ -2,9 +2,6 @@ package org.restservice.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
@@ -20,16 +17,13 @@ import java.io.StringWriter;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class StudentControllerTest {
 
-    @InjectMocks
     private StudentController studentController;
 
-    @Mock
     private StudentService studentService;
 
     private Student student;
@@ -37,10 +31,12 @@ class StudentControllerTest {
     @BeforeEach
     public void setUp() {
         student = new Student("Nikita", "Boradulin");
+        this.studentService = mock(StudentService.class);
+        this.studentController = new StudentController(studentService);
     }
 
     @Test
-    void doGet() throws ServletException, IOException {
+    void doGetDataFail() throws ServletException, IOException {
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
@@ -50,25 +46,49 @@ class StudentControllerTest {
 
         //Get
         when(request.getParameter("studentId")).thenReturn(String.valueOf(UUID.randomUUID())).thenReturn(student.getStudentId());
+        when(request.getParameter("action")).thenReturn("get");
+
+        studentController.doGet(request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
+    }
+
+    @Test
+    void doGetDataSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
+        //Get
+        when(request.getParameter("studentId")).thenReturn(student.getStudentId());
 
         when(request.getParameter("action")).thenReturn("get");
 
         when(studentService.read(UUID.fromString(student.getStudentId()))).thenReturn(Optional.of(student));
-        when(studentService.read(not(UUID.fromString(student.getStudentId())))).thenReturn(Optional.empty());
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
-
-        studentController.doGet(request, response);
-
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
         assertTrue(stringWriter.toString().contains(student.getStudentId()));
         assertTrue(stringWriter.toString().contains(student.getFirstName()));
         assertTrue(stringWriter.toString().contains(student.getLastName()));
 
         stringWriter.flush();
         writer.flush();
+    }
+
+    @Test
+    void doGetAll() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
         //Get all
         when(request.getParameter("action")).thenReturn("getAll");
 
@@ -81,7 +101,7 @@ class StudentControllerTest {
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
         assertTrue(stringWriter.toString().contains(student.getStudentId()));
         assertTrue(stringWriter.toString().contains(student.getFirstName()));
         assertTrue(stringWriter.toString().contains(student.getLastName()));
@@ -92,49 +112,113 @@ class StudentControllerTest {
 
         stringWriter.flush();
         writer.flush();
+    }
+
+    @Test
+    void doGetByFirstNameFail() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
 
         //Get by first name
         when(request.getParameter("firstName")).thenReturn("Tratata").thenReturn(student.getFirstName());
+        when(request.getParameter("action")).thenReturn("getByFirstName");
 
+        studentController.doGet(request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+        writer.flush();
+        stringWriter.flush();
+    }
+
+    @Test
+    void doGetByFirstNameSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
+        //Get by first name
+        when(request.getParameter("firstName")).thenReturn(student.getFirstName());
         when(request.getParameter("action")).thenReturn("getByFirstName");
 
         when(studentService.findByFirstName(student.getFirstName())).thenReturn(Optional.of(student));
-        when(studentService.findByFirstName(not(student.getFirstName()))).thenReturn(Optional.empty());
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
-
-        studentController.doGet(request, response);
-
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
         assertTrue(stringWriter.toString().contains(student.getStudentId()));
         assertTrue(stringWriter.toString().contains(student.getFirstName()));
         assertTrue(stringWriter.toString().contains(student.getLastName()));
 
         writer.flush();
         stringWriter.flush();
+    }
+
+    @Test
+    void doGetByLastNameFail() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
         //Get by last name
         when(request.getParameter("lastName")).thenReturn("Tratata").thenReturn(student.getLastName());
-
         when(request.getParameter("action")).thenReturn("getByLastName");
 
         when(studentService.findByLastName(student.getLastName())).thenReturn(Optional.of(student));
-        when(studentService.findByLastName(not(student.getLastName()))).thenReturn(Optional.empty());
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+        writer.flush();
+        stringWriter.flush();
+    }
+
+    @Test
+    void doGetByLastNameSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
+        //Get by last name
+        when(request.getParameter("lastName")).thenReturn(student.getLastName());
+        when(request.getParameter("action")).thenReturn("getByLastName");
+
+        when(studentService.findByLastName(student.getLastName())).thenReturn(Optional.of(student));
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
         assertTrue(stringWriter.toString().contains(student.getStudentId()));
         assertTrue(stringWriter.toString().contains(student.getFirstName()));
         assertTrue(stringWriter.toString().contains(student.getLastName()));
 
         writer.flush();
         stringWriter.flush();
+    }
+
+    @Test
+    void doGetByFullNameFail() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
         //Get by full name
         when(request.getParameter("firstName")).thenReturn("Tratata").thenReturn(student.getFirstName());
         when(request.getParameter("lastName")).thenReturn("Tratata").thenReturn(student.getLastName());
@@ -143,21 +227,52 @@ class StudentControllerTest {
         when(request.getParameter("action")).thenReturn("getByFullName");
 
         when(studentService.findByFullName(student.getFirstName(), student.getFirstName())).thenReturn(Optional.of(student));
-        when(studentService.findByFullName(not(student.getFirstName()), not(student.getLastName()))).thenReturn(Optional.empty());
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+        writer.flush();
+        stringWriter.flush();
+    }
+
+    @Test
+    void doGetByFullNameSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
+        //Get by full name
+        when(request.getParameter("firstName")).thenReturn(student.getFirstName());
+        when(request.getParameter("lastName")).thenReturn(student.getLastName());
+
+        when(request.getParameter("action")).thenReturn("getByFullName");
+
+        when(studentService.findByFullName(student.getFirstName(), student.getLastName())).thenReturn(Optional.of(student));
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
         assertTrue(stringWriter.toString().contains(student.getStudentId()));
         assertTrue(stringWriter.toString().contains(student.getFirstName()));
         assertTrue(stringWriter.toString().contains(student.getLastName()));
 
         writer.flush();
         stringWriter.flush();
+    }
+
+    @Test
+    void doGetWithClassesFail() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
         //Get with classes
         Set<LearningClass> learningClasses = new HashSet<>();
         learningClasses.add(new LearningClass("Total", "Hive"));
@@ -168,16 +283,38 @@ class StudentControllerTest {
         when(request.getParameter("studentId")).thenReturn(String.valueOf(UUID.randomUUID())).thenReturn(student.getStudentId());
         when(request.getParameter("action")).thenReturn("getWithClasses");
 
-        when(studentService.read(UUID.fromString(student.getStudentId()))).thenReturn(Optional.of(student));
-        when(studentService.read(not(UUID.fromString(student.getStudentId())))).thenReturn(Optional.empty());
+        studentController.doGet(request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+        stringWriter.flush();
+        writer.flush();
+    }
+
+    @Test
+    void doGetWithClassesSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
+
+        //Get with classes
+        Set<LearningClass> learningClasses = new HashSet<>();
+        learningClasses.add(new LearningClass("Total", "Hive"));
+        learningClasses.add(new LearningClass("Absolute", "Power"));
+        learningClasses.add(new LearningClass("Insight", "Future"));
+        student.setLearningClasses(learningClasses);
+
+        when(request.getParameter("studentId")).thenReturn(student.getStudentId());
+        when(request.getParameter("action")).thenReturn("getWithClasses");
+
+        when(studentService.getStudentWithAttendingClasses(UUID.fromString(student.getStudentId()))).thenReturn(Optional.of(student));
 
         studentController.doGet(request, response);
 
-        assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
-
-        studentController.doGet(request, response);
-
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
         assertTrue(stringWriter.toString().contains(student.getStudentId()));
         assertTrue(stringWriter.toString().contains(student.getFirstName()));
         assertTrue(stringWriter.toString().contains(student.getLastName()));
@@ -193,7 +330,7 @@ class StudentControllerTest {
     }
 
     @Test
-    void doPost() throws ServletException, IOException {
+    void doPostCreate() throws ServletException, IOException {
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
@@ -210,7 +347,13 @@ class StudentControllerTest {
         when(response.getWriter()).thenReturn(writer);
 
         studentController.doPost(request, response);
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+    }
+
+    @Test
+    void doPostUpdateFail() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
         //Update
         when(request.getParameter("firstName")).thenReturn("A").thenReturn(student.getFirstName());
@@ -220,15 +363,35 @@ class StudentControllerTest {
         when(request.getParameter("action")).thenReturn("update");
 
         when(studentService.update(student)).thenReturn(true);
-        when(studentService.update(not(student))).thenReturn(false);
 
         studentController.doPost(request, response);
 
-        assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    void doPostUpdateSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        //Update
+        when(request.getParameter("firstName")).thenReturn(student.getFirstName());
+        when(request.getParameter("lastName")).thenReturn(student.getLastName());
+        when(request.getParameter("studentId")).thenReturn(student.getStudentId());
+
+        when(request.getParameter("action")).thenReturn("update");
+
+        when(studentService.update(student)).thenReturn(true);
 
         studentController.doPost(request, response);
 
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+    }
+
+    @Test
+    void doPostDeleteFail() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
         //Delete
         when(request.getParameter("action")).thenReturn("delete");
@@ -237,20 +400,32 @@ class StudentControllerTest {
         when(request.getParameter("lastName")).thenReturn("B").thenReturn(student.getLastName());
         when(request.getParameter("studentId")).thenReturn(student.getStudentId());
 
-        when(studentService.delete(student)).thenReturn(true).thenReturn(false);
-        when(studentService.delete(not(student))).thenReturn(false);
+        studentController.doPost(request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+        
+
+    }
+
+    @Test
+    void doPostDeleteSuccess() throws ServletException, IOException {
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+
+        //Delete
+        when(request.getParameter("action")).thenReturn("delete");
+
+        when(request.getParameter("firstName")).thenReturn(student.getFirstName());
+        when(request.getParameter("lastName")).thenReturn(student.getLastName());
+        when(request.getParameter("studentId")).thenReturn(student.getStudentId());
+
+        when(studentService.delete(student)).thenReturn(true);
+
 
         studentController.doPost(request, response);
 
-        assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_OK);
 
-        studentController.doPost(request, response);
-
-        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
-
-        studentController.doPost(request, response);
-
-        assertEquals(HttpServletResponse.SC_FORBIDDEN, response.getStatus());
 
     }
 }

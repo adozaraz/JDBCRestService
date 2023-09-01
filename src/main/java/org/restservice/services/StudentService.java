@@ -35,8 +35,8 @@ public class StudentService implements Service<Student, UUID> {
 
     @Override
     public boolean delete(Student student) {
-        if (this.enrollmentService.deleteEnrollmentByStudentId(student.getStudentId())) return this.studentRepository.delete(student);
-        else return false;
+        this.enrollmentService.deleteEnrollmentByStudentId(student.getStudentId());
+        return this.studentRepository.delete(student);
     }
 
     public Iterable<Student> findAll() { return this.studentRepository.findAll(); }

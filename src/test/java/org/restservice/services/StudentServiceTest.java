@@ -13,17 +13,15 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class StudentServiceTest {
 
-    @InjectMocks
     StudentService studentService;
 
-    @Mock
     StudentRepository studentRepository;
 
-    @Mock
     EnrollmentService enrollmentService;
 
     private Student student;
@@ -31,6 +29,9 @@ class StudentServiceTest {
     @BeforeEach
     public void setUp() {
         student = new Student("Nikita", "Boradulin");
+        this.enrollmentService = mock(EnrollmentService.class);
+        this.studentRepository = mock(StudentRepository.class);
+        this.studentService = new StudentService(studentRepository, enrollmentService);
     }
 
     @Test
@@ -43,7 +44,6 @@ class StudentServiceTest {
     @Test
     void read() {
         when(studentRepository.read(UUID.fromString(student.getStudentId()))).thenReturn(Optional.of(student));
-        when(studentRepository.read(not(UUID.fromString(student.getStudentId())))).thenReturn(Optional.empty());
 
         Optional<Student> actualResult = studentService.read(UUID.randomUUID());
         assertFalse(actualResult.isPresent());
@@ -55,7 +55,6 @@ class StudentServiceTest {
     @Test
     void update() {
         when(studentRepository.update(student)).thenReturn(true);
-        when(studentRepository.update(not(student))).thenReturn(false);
 
         boolean result = studentService.update(new Student());
         assertFalse(result);
@@ -67,7 +66,6 @@ class StudentServiceTest {
     @Test
     void delete() {
         when(studentRepository.delete(student)).thenReturn(true).thenReturn(false);
-        when(studentRepository.delete(not(student))).thenReturn(false);
 
         boolean result = studentService.delete(new Student());
         assertFalse(result);
@@ -96,7 +94,6 @@ class StudentServiceTest {
     @Test
     void findByFirstName() {
         when(studentRepository.findByFirstName(student.getFirstName())).thenReturn(Optional.of(student));
-        when(studentRepository.findByFirstName(not(student.getFirstName()))).thenReturn(Optional.empty());
 
         Optional<Student> actualResult = studentService.findByFirstName("Lalla");
         assertFalse(actualResult.isPresent());
@@ -108,7 +105,6 @@ class StudentServiceTest {
     @Test
     void findByLastName() {
         when(studentRepository.findByLastName(student.getLastName())).thenReturn(Optional.of(student));
-        when(studentRepository.findByLastName(not(student.getLastName()))).thenReturn(Optional.empty());
 
         Optional<Student> actualResult = studentService.findByLastName("Lalla");
         assertFalse(actualResult.isPresent());
@@ -120,7 +116,6 @@ class StudentServiceTest {
     @Test
     void findByFullName() {
         when(studentRepository.findByFullName(student.getFirstName(), student.getLastName())).thenReturn(Optional.of(student));
-        when(studentRepository.findByFullName(not(student.getFirstName()), not(student.getLastName()))).thenReturn(Optional.empty());
 
         Optional<Student> actualResult = studentService.findByFullName("Lalla", "Test");
         assertFalse(actualResult.isPresent());
@@ -139,7 +134,6 @@ class StudentServiceTest {
         student.setLearningClasses(attendingClasses);
 
         when(enrollmentService.getStudentWithAttendingClasses(UUID.fromString(student.getStudentId()))).thenReturn(Optional.of(student));
-        when(enrollmentService.getStudentWithAttendingClasses(not(UUID.fromString(student.getStudentId())))).thenReturn(Optional.empty());
 
         Optional<Student> actualResult = studentService.getStudentWithAttendingClasses(UUID.randomUUID());
         assertFalse(actualResult.isPresent());
