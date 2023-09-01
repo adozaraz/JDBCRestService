@@ -91,8 +91,8 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         boolean result = false;
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.DELETE.QUERY)) {
             statement.setString(1, enrollment.getEnrollmentId());
-            statement.setString(2, enrollment.getStudent().getStudentId());
-            statement.setString(3, enrollment.getLearningClass().getLearningClassId());
+            statement.setString(2, enrollment.getLearningClass().getLearningClassId());
+            statement.setString(3, enrollment.getStudent().getStudentId());
             result = statement.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -156,7 +156,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     @Override
     public Optional<LearningClass> getByLearningClass(UUID learningClassId) {
         Optional<LearningClass> result = Optional.empty();
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_STUDENT.QUERY)) {
+        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_LEARNING_CLASS.QUERY)) {
             statement.setString(1, learningClassId.toString());
             final ResultSet rs = statement.executeQuery();
             Set<Student> attendingStudents = new HashSet<>();

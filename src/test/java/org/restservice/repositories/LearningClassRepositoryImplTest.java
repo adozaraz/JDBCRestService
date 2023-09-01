@@ -37,7 +37,8 @@ class LearningClassRepositoryImplTest {
     public final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
             .withDatabaseName(DB_NAME)
             .withUsername(USER)
-            .withPassword(PASSWORD);
+            .withPassword(PASSWORD)
+            .withInitScript("db/db.sql");
 
     private LearningClassRepository learningClassRepository;
 

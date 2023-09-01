@@ -74,6 +74,7 @@ public class StudentRepositoryImpl implements StudentRepository {
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.UPDATE.QUERY)) {
             statement.setString(1, student.getFirstName());
             statement.setString(2, student.getLastName());
+            statement.setString(3, student.getStudentId());
 
             result = statement.executeQuery().next();
         } catch (SQLException e) {

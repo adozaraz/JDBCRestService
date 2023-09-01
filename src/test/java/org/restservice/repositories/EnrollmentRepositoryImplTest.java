@@ -41,7 +41,8 @@ class EnrollmentRepositoryImplTest {
     private PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
             .withDatabaseName(DB_NAME)
             .withUsername(USER)
-            .withPassword(PASSWORD);
+            .withPassword(PASSWORD)
+            .withInitScript("db/db.sql");
 
     private EnrollmentRepository enrollmentRepository;
 
@@ -152,13 +153,13 @@ class EnrollmentRepositoryImplTest {
 
     @Test
     void getByStudent() {
-        studentRepository.create(student);
-        learningClassRepository.create(learningClass);
-        enrollmentRepository.create(enrollment);
-
         Set<LearningClass> learningClasses = new HashSet<>();
         learningClasses.add(learningClass);
         student.setLearningClasses(learningClasses);
+
+        studentRepository.create(student);
+        learningClassRepository.create(learningClass);
+        enrollmentRepository.create(enrollment);
 
         Optional<Student> actualStudent = enrollmentRepository.getByStudent(UUID.fromString(student.getStudentId()));
         assertTrue(actualStudent.isPresent());
@@ -167,13 +168,13 @@ class EnrollmentRepositoryImplTest {
 
     @Test
     void getByLearningClass() {
-        studentRepository.create(student);
-        learningClassRepository.create(learningClass);
-        enrollmentRepository.create(enrollment);
-
         Set<Student> attendingStudents = new HashSet<>();
         attendingStudents.add(student);
         learningClass.setAttendingStudents(attendingStudents);
+
+        studentRepository.create(student);
+        learningClassRepository.create(learningClass);
+        enrollmentRepository.create(enrollment);
 
         Optional<LearningClass> actualLearningClass = enrollmentRepository.getByLearningClass(UUID.fromString(learningClass.getLearningClassId()));
         assertTrue(actualLearningClass.isPresent());

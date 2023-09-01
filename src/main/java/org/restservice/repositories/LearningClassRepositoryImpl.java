@@ -67,6 +67,7 @@ public class LearningClassRepositoryImpl implements LearningClassRepository {
         try (PreparedStatement statement = connection.prepareStatement(SQLUser.UPDATE.QUERY)) {
             statement.setString(1, learningClass.getTitle());
             statement.setString(2, learningClass.getDescription());
+            statement.setString(3, learningClass.getLearningClassId());
             result = statement.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
