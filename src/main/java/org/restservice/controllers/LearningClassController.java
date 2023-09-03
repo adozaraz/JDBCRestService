@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
 import org.restservice.factories.Action;
+import org.restservice.services.EnrollmentService;
 import org.restservice.services.LearningClassService;
 import org.restservice.services.Service;
 import org.restservice.services.StudentService;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,9 +31,17 @@ public class LearningClassController extends HttpServlet {
 
     private final HashMap<String, Action<LearningClass, UUID>> actionHashMap = new HashMap<>();
 
+    public LearningClassController(EnrollmentService service) throws SQLException {
+        this.service = new LearningClassService(service);
+        createActionMap();
+    }
+
     public LearningClassController(LearningClassService service) {
         this.service = service;
+        createActionMap();
+    }
 
+    private void createActionMap() {
         actionHashMap.put("create", new Action<LearningClass, UUID>() {
             @Override
             public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {

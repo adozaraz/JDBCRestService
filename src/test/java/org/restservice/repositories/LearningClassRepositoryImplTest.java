@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.restservice.DbConnection;
 import org.restservice.entities.LearningClass;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -48,12 +49,13 @@ class LearningClassRepositoryImplTest {
     public void setUp() throws SQLException {
         postgres.start();
 
-        String url = postgres.getJdbcUrl();
+        DbConnection con = DbConnection.getInstance();
         Properties props = new Properties();
-        props.put("user", postgres.getUsername());
-        props.put("password", postgres.getPassword());
-        conn = DriverManager.getConnection(url, props);
-        learningClassRepository = new LearningClassRepositoryImpl(conn);
+        props.put("db.url", postgres.getJdbcUrl());
+        props.put("db.user", postgres.getUsername());
+        props.put("db.password", postgres.getPassword());
+        con.changeProps(props);
+        learningClassRepository = new LearningClassRepositoryImpl();
     }
 
     @AfterEach

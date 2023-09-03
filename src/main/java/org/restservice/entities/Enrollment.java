@@ -4,31 +4,31 @@ import java.util.*;
 
 public class Enrollment {
     private UUID enrollmentId;
-    private Student student;
-    private LearningClass learningClass;
+    private String studentId;
+    private String learningClassId;
 
     public Enrollment() {
         this.enrollmentId = UUID.randomUUID();
-        this.student = null;
-        this.learningClass = null;
+        this.studentId = null;
+        this.learningClassId = null;
     }
 
-    public Enrollment(Student student, LearningClass learningClass) {
+    public Enrollment(String student, String learningClass) {
         this.enrollmentId = UUID.randomUUID();
-        this.student = student;
-        this.learningClass = learningClass;
+        this.studentId = student;
+        this.learningClassId = learningClass;
     }
 
-    public Enrollment(UUID enrollmentId, Student student, LearningClass learningClass) {
+    public Enrollment(UUID enrollmentId, String student, String learningClass) {
         this.enrollmentId = enrollmentId;
-        this.student = student;
-        this.learningClass = learningClass;
+        this.studentId = student;
+        this.learningClassId = learningClass;
     }
 
-    public Enrollment(String enrollmentId, Student student, LearningClass learningClass) {
+    public Enrollment(String enrollmentId, String student, String learningClass) {
         this.enrollmentId = UUID.fromString(enrollmentId);
-        this.student = student;
-        this.learningClass = learningClass;
+        this.studentId = student;
+        this.learningClassId = learningClass;
     }
 
     public String getEnrollmentId() {
@@ -39,31 +39,31 @@ public class Enrollment {
         this.enrollmentId = enrollmentId;
     }
 
-    public Student getStudent() {
-        return student;
+    public String getStudentId() {
+        return studentId;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setStudent(String student) {
+        this.studentId = student;
     }
 
-    public LearningClass getLearningClass() {
-        return learningClass;
+    public String getLearningClassId() {
+        return learningClassId;
     }
 
-    public void setLearningClass(LearningClass learningClass) {
-        this.learningClass = learningClass;
+    public void setLearningClass(String learningClass) {
+        this.learningClassId = learningClass;
     }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Enrollment that = (Enrollment) o;
-        return Objects.equals(enrollmentId, that.enrollmentId) && Objects.equals(student, that.student) && Objects.equals(learningClass, that.learningClass);
+        return Objects.equals(enrollmentId, that.enrollmentId) && Objects.equals(studentId, that.studentId) && Objects.equals(learningClassId, that.learningClassId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(enrollmentId, student, learningClass);
+        return Objects.hash(enrollmentId, studentId, learningClassId);
     }
 }

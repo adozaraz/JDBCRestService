@@ -1,5 +1,6 @@
 package org.restservice.repositories;
 
+import org.restservice.DbConnection;
 import org.restservice.entities.LearningClass;
 
 import java.sql.Connection;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 public class LearningClassRepositoryImpl implements LearningClassRepository {
 
-    final Connection connection;
+    private DbConnection connection;
 
     private enum SQLUser {
         GET("SELECT learningClassId, title, description FROM learningCLasses WHERE learningClassId = (?)"),
@@ -26,14 +27,14 @@ public class LearningClassRepositoryImpl implements LearningClassRepository {
         }
     }
 
-    public LearningClassRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public LearningClassRepositoryImpl() throws SQLException {
+        this.connection = DbConnection.getInstance();
     }
 
     @Override
     public boolean create(LearningClass learningClass) {
         boolean result = false;
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.INSERT.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.INSERT.QUERY)) {
             statement.setString(1, learningClass.getLearningClassId());
             statement.setString(2, learningClass.getTitle());
             statement.setString(3, learningClass.getDescription());
@@ -47,7 +48,7 @@ public class LearningClassRepositoryImpl implements LearningClassRepository {
     @Override
     public Optional<LearningClass> read(UUID uuid) {
         Optional<LearningClass> result = Optional.empty();
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET.QUERY)) {
             statement.setString(1, uuid.toString());
             final ResultSet rs = statement.executeQuery();
             if (rs.next()) {
@@ -64,7 +65,7 @@ public class LearningClassRepositoryImpl implements LearningClassRepository {
     @Override
     public boolean update(LearningClass learningClass) {
         boolean result = false;
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.UPDATE.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.UPDATE.QUERY)) {
             statement.setString(1, learningClass.getTitle());
             statement.setString(2, learningClass.getDescription());
             statement.setString(3, learningClass.getLearningClassId());
@@ -78,7 +79,7 @@ public class LearningClassRepositoryImpl implements LearningClassRepository {
     @Override
     public boolean delete(LearningClass learningClass) {
         boolean result = false;
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.DELETE.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.DELETE.QUERY)) {
             statement.setString(1, learningClass.getLearningClassId());
             statement.setString(2, learningClass.getTitle());
             statement.setString(3, learningClass.getDescription());

@@ -7,6 +7,7 @@ import org.restservice.repositories.EnrollmentRepository;
 import org.restservice.repositories.EnrollmentRepositoryImpl;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public class EnrollmentService implements Service<Enrollment, UUID> {
         this.repository = repository;
     }
 
-    public EnrollmentService(Connection connection) { this.repository = new EnrollmentRepositoryImpl(connection); }
+    public EnrollmentService() throws SQLException { this.repository = new EnrollmentRepositoryImpl(); }
 
     @Override
     public boolean create(Enrollment enrollment) {

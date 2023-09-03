@@ -5,6 +5,7 @@ import org.restservice.repositories.StudentRepository;
 import org.restservice.repositories.StudentRepositoryImpl;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,8 +20,8 @@ public class StudentService implements Service<Student, UUID> {
         this.enrollmentService = enrollmentService;
     }
 
-    public StudentService(Connection connection, EnrollmentService enrollmentService) {
-        this.studentRepository = new StudentRepositoryImpl(connection);
+    public StudentService(EnrollmentService enrollmentService) throws SQLException {
+        this.studentRepository = new StudentRepositoryImpl();
         this.enrollmentService = enrollmentService;
     }
 

@@ -1,5 +1,6 @@
 package org.restservice.repositories;
 
+import org.restservice.DbConnection;
 import org.restservice.entities.Student;
 
 import java.sql.Connection;
@@ -27,16 +28,16 @@ public class StudentRepositoryImpl implements StudentRepository {
         }
     }
 
-    final Connection connection;
+    private DbConnection connection;
 
-    public StudentRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public StudentRepositoryImpl() throws SQLException {
+        this.connection = DbConnection.getInstance();
     }
 
     @Override
     public boolean create(Student student) {
         boolean result = false;
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.INSERT.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.INSERT.QUERY)) {
             statement.setString(1, student.getStudentId());
             statement.setString(2, student.getFirstName());
             statement.setString(3, student.getLastName());
@@ -52,7 +53,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     public Optional<Student> read(UUID uuid) {
         Optional<Student> result = Optional.empty();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET.QUERY)) {
             statement.setString(1, uuid.toString());
 
             final ResultSet rs = statement.executeQuery();
@@ -71,7 +72,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     public boolean update(Student student) {
         boolean result = false;
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.UPDATE.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.UPDATE.QUERY)) {
             statement.setString(1, student.getFirstName());
             statement.setString(2, student.getLastName());
             statement.setString(3, student.getStudentId());
@@ -88,7 +89,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     public boolean delete(Student student) {
         boolean result = false;
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.DELETE.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.DELETE.QUERY)) {
             statement.setString(1, student.getStudentId());
             statement.setString(2, student.getFirstName());
             statement.setString(3, student.getLastName());
@@ -104,7 +105,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     @Override
     public Iterable<Student> findAll() {
         ArrayList<Student> result = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_ALL.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET_ALL.QUERY)) {
             final ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 final String id = rs.getString("studentId");
@@ -122,7 +123,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     public Optional<Student> findByFirstName(String firstName) {
         Optional<Student> result = Optional.empty();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_FIRST.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET_BY_FIRST.QUERY)) {
             statement.setString(1, firstName);
             final ResultSet rs = statement.executeQuery();
             if (rs.next()) {
@@ -141,7 +142,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     public Optional<Student> findByLastName(String lastName) {
         Optional<Student> result = Optional.empty();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_LAST.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET_BY_LAST.QUERY)) {
             statement.setString(1, lastName);
             final ResultSet rs = statement.executeQuery();
             if (rs.next()) {
@@ -160,7 +161,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     public Optional<Student> findByFullName(String firstName, String lastName) {
         Optional<Student> result = Optional.empty();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLUser.GET_BY_FIRST_AND_LAST.QUERY)) {
+        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET_BY_FIRST_AND_LAST.QUERY)) {
             statement.setString(1, firstName);
             statement.setString(2, lastName);
             final ResultSet rs = statement.executeQuery();

@@ -3,6 +3,7 @@ package org.restservice.controllers;
 import com.google.gson.Gson;
 import org.restservice.entities.Student;
 import org.restservice.factories.Action;
+import org.restservice.services.EnrollmentService;
 import org.restservice.services.Service;
 import org.restservice.services.StudentService;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,8 +26,18 @@ import java.util.UUID;
 public class StudentController extends HttpServlet {
     private final StudentService service;
     private final HashMap<String, Action<Student, UUID>> actionHashMap = new HashMap<>();
+
+    public StudentController(EnrollmentService enrollmentService) throws SQLException {
+        this.service = new StudentService(enrollmentService);
+        createActionMap();
+    }
+
     public StudentController(StudentService service) {
         this.service = service;
+        createActionMap();
+    }
+
+    private void createActionMap() {
         actionHashMap.put("create", new Action<Student, UUID>() {
             @Override
             public void perform(HttpServletRequest request, HttpServletResponse response, Service<Student, UUID> service) {
@@ -200,6 +212,7 @@ public class StudentController extends HttpServlet {
             }
         });
     }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);

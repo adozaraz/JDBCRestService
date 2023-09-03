@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.restservice.DbConnection;
 import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
@@ -61,17 +62,18 @@ class EnrollmentRepositoryImplTest {
     public void setUp() throws SQLException {
         postgres.start();
 
-        String url = postgres.getJdbcUrl();
+        DbConnection con = DbConnection.getInstance();
         Properties props = new Properties();
-        props.put("user", postgres.getUsername());
-        props.put("password", postgres.getPassword());
-        conn = DriverManager.getConnection(url, props);
-        enrollmentRepository = new EnrollmentRepositoryImpl(conn);
-        studentRepository = new StudentRepositoryImpl(conn);
-        learningClassRepository = new LearningClassRepositoryImpl(conn);
+        props.put("db.url", postgres.getJdbcUrl());
+        props.put("db.user", postgres.getUsername());
+        props.put("db.password", postgres.getPassword());
+        con.changeProps(props);
+        enrollmentRepository = new EnrollmentRepositoryImpl();
+        studentRepository = new StudentRepositoryImpl();
+        learningClassRepository = new LearningClassRepositoryImpl();
         student = new Student("Boradulin", "Nikita");
         learningClass = new LearningClass("Test", "School");
-        enrollment = new Enrollment(student, learningClass);
+        enrollment = new Enrollment(student.getStudentId(), learningClass.getLearningClassId());
     }
 
     @AfterEach
@@ -104,9 +106,9 @@ class EnrollmentRepositoryImplTest {
         Student substitute = new Student("Test", "Work");
         studentRepository.create(substitute);
         learningClassRepository.create(learningClass);
-        Enrollment testEnrollment = new Enrollment(enrollment.getEnrollmentId(), substitute, learningClass);
+        Enrollment testEnrollment = new Enrollment(enrollment.getEnrollmentId(), substitute.getStudentId(), learningClass.getLearningClassId());
         enrollmentRepository.create(testEnrollment);
-        testEnrollment.setStudent(student);
+        testEnrollment.setStudent(student.getStudentId());
         boolean result = enrollmentRepository.update(testEnrollment);
         assertTrue(result);
 

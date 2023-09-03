@@ -5,6 +5,7 @@ import org.restservice.repositories.LearningClassRepository;
 import org.restservice.repositories.LearningClassRepositoryImpl;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,8 +18,8 @@ public class LearningClassService implements Service<LearningClass, UUID> {
         this.enrollmentService = enrollmentService;
     }
 
-    public LearningClassService(Connection connection, EnrollmentService enrollmentService) {
-        this.learningClassRepository = new LearningClassRepositoryImpl(connection);
+    public LearningClassService(EnrollmentService enrollmentService) throws SQLException {
+        this.learningClassRepository = new LearningClassRepositoryImpl();
         this.enrollmentService = enrollmentService;
     }
 

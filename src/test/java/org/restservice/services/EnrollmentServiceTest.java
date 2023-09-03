@@ -42,14 +42,14 @@ class EnrollmentServiceTest {
     @Test
     void create() {
         when(enrollmentRepository.create(any(Enrollment.class))).thenReturn(true);
-        boolean result = enrollmentService.create(new Enrollment(student, learningClass));
+        boolean result = enrollmentService.create(new Enrollment(student.getStudentId(), learningClass.getLearningClassId()));
         assertTrue(result);
     }
 
     @Test
     void read() {
         UUID uuid = UUID.randomUUID();
-        when(enrollmentRepository.read(uuid)).thenReturn(Optional.of(new Enrollment(student, learningClass)));
+        when(enrollmentRepository.read(uuid)).thenReturn(Optional.of(new Enrollment(student.getStudentId(), learningClass.getLearningClassId())));
 
         Optional<Enrollment> actualResult = enrollmentService.read(uuid);
         assertTrue(actualResult.isPresent());
@@ -61,7 +61,7 @@ class EnrollmentServiceTest {
 
     @Test
     void update() {
-        Enrollment enrollment = new Enrollment(student, learningClass);
+        Enrollment enrollment = new Enrollment(student.getStudentId(), learningClass.getLearningClassId());
         when(enrollmentRepository.update(enrollment)).thenReturn(true);
 
         boolean result = enrollmentService.update(enrollment);
@@ -72,7 +72,7 @@ class EnrollmentServiceTest {
 
     @Test
     void delete() {
-        Enrollment enrollment = new Enrollment(student, learningClass);
+        Enrollment enrollment = new Enrollment(student.getStudentId(), learningClass.getLearningClassId());
         when(enrollmentRepository.delete(enrollment)).thenReturn(true).thenReturn(false);
 
         boolean result = enrollmentService.delete(new Enrollment());

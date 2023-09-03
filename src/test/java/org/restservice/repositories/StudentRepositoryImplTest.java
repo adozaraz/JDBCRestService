@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.restservice.DbConnection;
 import org.restservice.entities.Student;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -55,12 +56,13 @@ class StudentRepositoryImplTest {
 
         student = new Student("Boradulin", "Nikita");
 
-        String url = postgres.getJdbcUrl();
+        DbConnection con = DbConnection.getInstance();
         Properties props = new Properties();
+        props.put("db.url", postgres.getJdbcUrl());
         props.put("user", postgres.getUsername());
         props.put("password", postgres.getPassword());
-        conn = DriverManager.getConnection(url, props);
-        studentRepository = new StudentRepositoryImpl(conn);
+        con.changeProps(props);
+        studentRepository = new StudentRepositoryImpl();
     }
 
     @AfterEach
