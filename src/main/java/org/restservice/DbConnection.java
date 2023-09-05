@@ -26,8 +26,7 @@ public class DbConnection {
     private DbConnection(String fileProperties) throws SQLException {
         this.props = new Properties();
         this.fileProperties = fileProperties;
-        File file = new File(getClass().getClassLoader().getResource(fileProperties).getFile());
-        try (InputStream inputStream = new FileInputStream(file)) {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileProperties)) {
             props.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
