@@ -2,9 +2,6 @@ package org.restservice.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
 import org.restservice.entities.StudentDTO;
@@ -50,7 +47,7 @@ class StudentServiceTest {
 
         result = studentService.create(studentDTO);
         assertTrue(result);
-        verify(enrollmentService, atLeastOnce()).create(any(Enrollment.class));
+        verify(enrollmentService, atLeastOnce()).create(any(String.class), any(String.class));
     }
 
     @Test

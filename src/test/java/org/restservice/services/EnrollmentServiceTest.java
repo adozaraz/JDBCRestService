@@ -2,14 +2,10 @@ package org.restservice.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
 import org.restservice.repositories.EnrollmentRepository;
-import org.testcontainers.shaded.org.hamcrest.CoreMatchers;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -41,46 +37,9 @@ class EnrollmentServiceTest {
 
     @Test
     void create() {
-        when(enrollmentRepository.create(any(Enrollment.class))).thenReturn(true);
-        boolean result = enrollmentService.create(new Enrollment(student.getStudentId(), learningClass.getLearningClassId()));
+        when(enrollmentRepository.create(any(String.class), any(String.class))).thenReturn(true);
+        boolean result = enrollmentService.create(student.getStudentId(), learningClass.getLearningClassId());
         assertTrue(result);
-    }
-
-    @Test
-    void read() {
-        UUID uuid = UUID.randomUUID();
-        when(enrollmentRepository.read(uuid)).thenReturn(Optional.of(new Enrollment(student.getStudentId(), learningClass.getLearningClassId())));
-
-        Optional<Enrollment> actualResult = enrollmentService.read(uuid);
-        assertTrue(actualResult.isPresent());
-
-        uuid = UUID.randomUUID();
-        actualResult = enrollmentService.read(uuid);
-        assertFalse(actualResult.isPresent());
-    }
-
-    @Test
-    void update() {
-        Enrollment enrollment = new Enrollment(student.getStudentId(), learningClass.getLearningClassId());
-        when(enrollmentRepository.update(enrollment)).thenReturn(true);
-
-        boolean result = enrollmentService.update(enrollment);
-        assertTrue(result);
-        result = enrollmentService.update(new Enrollment());
-        assertFalse(result);
-    }
-
-    @Test
-    void delete() {
-        Enrollment enrollment = new Enrollment(student.getStudentId(), learningClass.getLearningClassId());
-        when(enrollmentRepository.delete(enrollment)).thenReturn(true).thenReturn(false);
-
-        boolean result = enrollmentService.delete(new Enrollment());
-        assertFalse(result);
-        result = enrollmentService.delete(enrollment);
-        assertTrue(result);
-        result = enrollmentService.delete(enrollment);
-        assertFalse(result);
     }
 
     @Test

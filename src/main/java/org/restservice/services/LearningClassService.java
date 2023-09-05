@@ -1,6 +1,5 @@
 package org.restservice.services;
 
-import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.LearningClassDTO;
 import org.restservice.repositories.LearningClassRepository;
@@ -29,7 +28,7 @@ public class LearningClassService {
             if (learningClass.getAttendingStudents() != null) {
                 for (String studentId :
                         learningClass.getAttendingStudents()) {
-                    this.enrollmentService.create(new Enrollment(studentId, learningClass.getLearningClassId()));
+                    this.enrollmentService.create(studentId, learningClass.getLearningClassId());
                 }
             }
             return true;

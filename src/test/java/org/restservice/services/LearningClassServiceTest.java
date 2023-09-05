@@ -1,19 +1,14 @@
 package org.restservice.services;
 
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.LearningClassDTO;
 import org.restservice.entities.Student;
 import org.restservice.repositories.LearningClassRepository;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
 import static org.mockito.AdditionalMatchers.not;
 
 import java.util.HashSet;
@@ -60,7 +55,7 @@ class LearningClassServiceTest {
 
         result = learningClassService.create(learningClassDTO);
         assertTrue(result);
-        verify(enrollmentService, atLeastOnce()).create(any(Enrollment.class));
+        verify(enrollmentService, atLeastOnce()).create(any(String.class), any(String.class));
 
     }
 

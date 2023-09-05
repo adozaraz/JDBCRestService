@@ -1,6 +1,5 @@
 package org.restservice.services;
 
-import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
 import org.restservice.repositories.EnrollmentRepository;
@@ -19,21 +18,8 @@ public class EnrollmentService {
 
     public EnrollmentService() throws SQLException { this.repository = new EnrollmentRepositoryImpl(); }
 
-    public boolean create(Enrollment enrollment) {
-        return this.repository.create(enrollment);
-    }
-
-    public Optional<Enrollment> read(UUID uuid) {
-        return this.repository.read(uuid);
-    }
-
-
-    public boolean update(Enrollment enrollment) {
-        return this.repository.update(enrollment);
-    }
-
-    public boolean delete(Enrollment enrollment) {
-        return this.repository.delete(enrollment);
+    public boolean create(String studentId, String learningClassId) {
+        return this.repository.create(studentId, learningClassId);
     }
 
     public Optional<Student> getStudentWithAttendingClasses(UUID studentId) { return this.repository.getByStudent(studentId); }

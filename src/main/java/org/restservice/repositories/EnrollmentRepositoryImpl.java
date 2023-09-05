@@ -1,11 +1,9 @@
 package org.restservice.repositories;
 
 import org.restservice.DbConnection;
-import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,58 +33,12 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         this.connection = DbConnection.getInstance();
     }
     @Override
-    public boolean create(Enrollment enrollment) {
+    public boolean create(String studentId, String learningClassId) {
         boolean result = false;
         try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.INSERT.QUERY)) {
-            statement.setString(1, enrollment.getEnrollmentId());
-            statement.setString(2, enrollment.getStudentId());
-            statement.setString(3, enrollment.getLearningClassId());
-            result = statement.executeQuery().next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    @Override
-    public Optional<Enrollment> read(UUID uuid) {
-        Optional<Enrollment> result = Optional.empty();
-        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.GET.QUERY)) {
-            statement.setString(1, uuid.toString());
-            final ResultSet rs = statement.executeQuery();
-            if (rs.next()) {
-                String enrollmentId = rs.getString("enrollmentId");
-                String studentId = rs.getString("studentId");
-                String learningClassId = rs.getString("learningClassId");
-                result = Optional.of(new Enrollment(enrollmentId, studentId, learningClassId));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    @Override
-    public boolean update(Enrollment enrollment) {
-        boolean result = false;
-        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.UPDATE.QUERY)) {
-            statement.setString(1, enrollment.getStudentId());
-            statement.setString(2, enrollment.getLearningClassId());
-            statement.setString(3, enrollment.getEnrollmentId());
-            result = statement.executeQuery().next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    @Override
-    public boolean delete(Enrollment enrollment) {
-        boolean result = false;
-        try (PreparedStatement statement = connection.getPreparedStatement(SQLUser.DELETE.QUERY)) {
-            statement.setString(1, enrollment.getEnrollmentId());
-            statement.setString(2, enrollment.getLearningClassId());
-            statement.setString(3, enrollment.getStudentId());
+            statement.setString(1, UUID.randomUUID().toString());
+            statement.setString(2, studentId);
+            statement.setString(3, learningClassId);
             result = statement.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
