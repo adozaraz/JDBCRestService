@@ -17,8 +17,6 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         GET_BY_STUDENT("SELECT s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.student = (?)"),
         GET_BY_LEARNING_CLASS("SELECT s.studentId, s.firstName, s.lastName, l.learningClassId, l.title, l.description FROM enrollments AS e JOIN students AS s ON e.student = s.studentId JOIN learningClasses AS l ON e.learningClass = l.learningClassId WHERE e.learningClass = (?)"),
         INSERT("INSERT INTO enrollments (enrollmentId, student, learningClass) VALUES ((?), (?), (?)) RETURNING enrollmentId"),
-        UPDATE("UPDATE enrollments SET student = (?), learningClass = (?) WHERE enrollmentId = (?) RETURNING enrollmentId"),
-        DELETE("DELETE FROM enrollments WHERE enrollmentId = (?) AND learningClass = (?) AND student = (?) RETURNING enrollmentId"),
         DELETE_BY_STUDENT_ID("DELETE FROM enrollments WHERE student = (?) RETURNING enrollmentId"),
         DELETE_BY_LEARNING_CLASS_ID("DELETE FROM enrollments WHERE learningClass = (?) RETURNING enrollmentId");
 

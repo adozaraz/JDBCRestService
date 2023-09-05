@@ -18,27 +18,31 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 class LearningClassRepositoryImplTest {
+    private static final Logger log = Logger.getLogger("LearningClassRepositoryImplTest");
+
     static {
         // Postgres JDBC driver uses JUL; disable it to avoid annoying, irrelevant, stderr logs during connection testing
         LogManager.getLogManager().getLogger("").setLevel(Level.OFF);
         try {
             DbConnection con = DbConnection.getInstance();
             properties = con.getProps();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Container
     public PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
-            .withDatabaseName(properties.getProperty("db.database"))
-            .withUsername(properties.getProperty("db.username"))
+            .withUsername(properties.getProperty("db.user"))
             .withPassword(properties.getProperty("db.password"))
+            .withDatabaseName("TEST_DATABASE")
             .withInitScript("db/db.sql");
 
     private LearningClassRepository learningClassRepository;
@@ -50,13 +54,15 @@ class LearningClassRepositoryImplTest {
         postgres.start();
 
         DbConnection con = DbConnection.getInstance();
-        con.connectToServer();
+        con.changeURL(postgres.getJdbcUrl());
 
         learningClassRepository = new LearningClassRepositoryImpl();
     }
 
     @AfterEach
     public void after() throws SQLException {
+        DbConnection con = DbConnection.getInstance();
+        con.closeConnection();
         postgres.stop();
     }
 

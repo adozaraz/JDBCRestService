@@ -42,6 +42,7 @@ class StudentRepositoryImplTest {
             .withDatabaseName(properties.getProperty("db.database"))
             .withUsername(properties.getProperty("db.user"))
             .withPassword(properties.getProperty("db.password"))
+            .withDatabaseName("TEST_DATABASE")
             .withInitScript("db/db.sql");;
 
     private StudentRepository studentRepository;
@@ -56,7 +57,7 @@ class StudentRepositoryImplTest {
         postgres.start();
 
         DbConnection con = DbConnection.getInstance();
-        con.connectToServer();
+        con.changeURL(postgres.getJdbcUrl());
 
         student = new Student("Boradulin", "Nikita");
         studentRepository = new StudentRepositoryImpl();

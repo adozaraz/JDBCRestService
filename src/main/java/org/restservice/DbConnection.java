@@ -60,21 +60,21 @@ public class DbConnection {
     }
 
     public void changeUsernameProperty(String username) throws SQLException {
-        closeConnection();
+        if (connection != null) closeConnection();
         props.setProperty("db.user", username);
         saveProperties();
         connectToServer();
     }
 
     public void changePasswordProperty(String password) throws SQLException {
-        closeConnection();
+        if (connection != null) closeConnection();
         props.setProperty("db.password", password);
         saveProperties();
         connectToServer();
     }
 
     public void changeURL(String url) throws SQLException {
-        closeConnection();
+        if (connection != null) closeConnection();
         props.setProperty("db.url", url);
         saveProperties();
         connectToServer();
@@ -85,7 +85,7 @@ public class DbConnection {
     }
 
     public void changeProps(Properties props) throws SQLException {
-        closeConnection();
+        if (connection != null) closeConnection();
         this.props = props;
         saveProperties();
         connectToServer();

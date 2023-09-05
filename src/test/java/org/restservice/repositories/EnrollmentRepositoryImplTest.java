@@ -35,7 +35,7 @@ class EnrollmentRepositoryImplTest {
 
     @Container
     private PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
-            .withDatabaseName(props.getProperty("db.database"))
+            .withDatabaseName("TEST_DATABASE")
             .withUsername(props.getProperty("db.user"))
             .withPassword(props.getProperty("db.password"))
             .withInitScript("db/db.sql");
@@ -57,7 +57,7 @@ class EnrollmentRepositoryImplTest {
         postgres.start();
 
         DbConnection con = DbConnection.getInstance();
-        con.connectToServer();
+        con.changeURL(postgres.getJdbcUrl());
 
         enrollmentRepository = new EnrollmentRepositoryImpl();
         studentRepository = new StudentRepositoryImpl();
@@ -105,6 +105,8 @@ class EnrollmentRepositoryImplTest {
 
         studentRepository.create(student);
         learningClassRepository.create(learningClass);
+        enrollmentRepository.create(student.getStudentId(), learningClass.getLearningClassId());
+
 
         Optional<Student> actualStudent = enrollmentRepository.getByStudent(UUID.fromString(student.getStudentId()));
         assertTrue(actualStudent.isPresent());
