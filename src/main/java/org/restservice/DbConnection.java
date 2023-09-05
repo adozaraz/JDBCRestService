@@ -28,7 +28,6 @@ public class DbConnection {
         this.fileProperties = fileProperties;
         File file = new File(getClass().getClassLoader().getResource(fileProperties).getFile());
         try (InputStream inputStream = new FileInputStream(file)) {
-            System.out.println(file.getAbsolutePath());
             props.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
