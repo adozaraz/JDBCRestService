@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
 import org.restservice.entities.Student;
+import org.restservice.entities.StudentDTO;
 import org.restservice.repositories.StudentRepository;
 
 import java.util.*;
@@ -13,8 +15,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class StudentServiceTest {
 
@@ -26,9 +27,12 @@ class StudentServiceTest {
 
     private Student student;
 
+    private StudentDTO studentDTO;
+
     @BeforeEach
     public void setUp() {
-        student = new Student("Nikita", "Boradulin");
+        studentDTO = new StudentDTO(UUID.randomUUID().toString(), "Nikita", "Boradulin");
+        student = new Student(studentDTO);
         this.enrollmentService = mock(EnrollmentService.class);
         this.studentRepository = mock(StudentRepository.class);
         this.studentService = new StudentService(studentRepository, enrollmentService);
@@ -37,8 +41,16 @@ class StudentServiceTest {
     @Test
     void create() {
         when(studentRepository.create(any(Student.class))).thenReturn(true);
-        boolean result = studentService.create(student);
+        boolean result = studentService.create(studentDTO);
         assertTrue(result);
+
+        Set<String> attendingClasses = new HashSet<>();
+        attendingClasses.add(UUID.randomUUID().toString());
+        studentDTO.setLearningClasses(attendingClasses);
+
+        result = studentService.create(studentDTO);
+        assertTrue(result);
+        verify(enrollmentService, atLeastOnce()).create(any(Enrollment.class));
     }
 
     @Test
@@ -56,10 +68,10 @@ class StudentServiceTest {
     void update() {
         when(studentRepository.update(student)).thenReturn(true);
 
-        boolean result = studentService.update(new Student());
+        boolean result = studentService.update(new StudentDTO(UUID.randomUUID().toString(), "Test", "Ada"));
         assertFalse(result);
 
-        result = studentService.update(student);
+        result = studentService.update(studentDTO);
         assertTrue(result);
     }
 
@@ -67,13 +79,13 @@ class StudentServiceTest {
     void delete() {
         when(studentRepository.delete(student)).thenReturn(true).thenReturn(false);
 
-        boolean result = studentService.delete(new Student());
+        boolean result = studentService.delete(new StudentDTO(UUID.randomUUID().toString(), "Test", "Ada"));
         assertFalse(result);
 
-        result = studentService.delete(student);
+        result = studentService.delete(studentDTO);
         assertTrue(result);
 
-        result = studentService.delete(student);
+        result = studentService.delete(studentDTO);
         assertFalse(result);
     }
 

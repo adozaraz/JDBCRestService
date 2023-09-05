@@ -54,6 +54,13 @@ public class LearningClass {
         this.attendingStudents = attendingStudents;
     }
 
+    public LearningClass(LearningClassDTO learningClassDTO) {
+        this.learningClassId = UUID.fromString(learningClassDTO.getLearningClassId());
+        this.title = learningClassDTO.getTitle();
+        this.description = learningClassDTO.getDescription();
+        this.attendingStudents = null;
+    }
+
 
     public String getLearningClassId() {
         return learningClassId.toString();

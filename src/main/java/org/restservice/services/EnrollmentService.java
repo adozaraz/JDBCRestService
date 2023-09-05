@@ -6,12 +6,11 @@ import org.restservice.entities.Student;
 import org.restservice.repositories.EnrollmentRepository;
 import org.restservice.repositories.EnrollmentRepositoryImpl;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EnrollmentService implements Service<Enrollment, UUID> {
+public class EnrollmentService {
     private final EnrollmentRepository repository;
 
     public EnrollmentService(EnrollmentRepository repository) {
@@ -20,23 +19,19 @@ public class EnrollmentService implements Service<Enrollment, UUID> {
 
     public EnrollmentService() throws SQLException { this.repository = new EnrollmentRepositoryImpl(); }
 
-    @Override
     public boolean create(Enrollment enrollment) {
         return this.repository.create(enrollment);
     }
 
-    @Override
     public Optional<Enrollment> read(UUID uuid) {
         return this.repository.read(uuid);
     }
 
 
-    @Override
     public boolean update(Enrollment enrollment) {
         return this.repository.update(enrollment);
     }
 
-    @Override
     public boolean delete(Enrollment enrollment) {
         return this.repository.delete(enrollment);
     }

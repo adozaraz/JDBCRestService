@@ -54,6 +54,13 @@ public class Student {
         this.learningClasses = learningClasses;
     }
 
+    public Student(StudentDTO studentDTO) {
+        this.studentId = UUID.fromString(studentDTO.getStudentId());
+        this.firstName = studentDTO.getFirstName();
+        this.lastName = studentDTO.getLastName();
+        this.learningClasses = null;
+    }
+
     public String getFirstName() {
         return firstName;
     }

@@ -1,11 +1,13 @@
 package org.restservice.controllers;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.restservice.entities.LearningClass;
+import org.restservice.entities.LearningClassDTO;
 import org.restservice.entities.Student;
 import org.restservice.services.LearningClassService;
 
@@ -13,9 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -145,11 +145,25 @@ class LearningClassControllerTest {
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
-        //Create
         when(request.getParameter("action")).thenReturn("create");
-        when(request.getParameter("title")).thenReturn(learningClass.getTitle());
-        when(request.getParameter("description")).thenReturn(learningClass.getDescription());
-        when(learningClassService.create(any(LearningClass.class))).thenReturn(true);
+
+        LearningClassDTO learningClass = new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Class");
+
+        Set<String> attendingStudents = new HashSet<>();
+        attendingStudents.add(UUID.randomUUID().toString());
+        attendingStudents.add(UUID.randomUUID().toString());
+        attendingStudents.add(UUID.randomUUID().toString());
+        learningClass.setAttendingStudents(attendingStudents);
+
+        String learningClassJson = new Gson().toJson(learningClass);
+
+        Reader inputString = new StringReader(learningClassJson);
+        BufferedReader reader = new BufferedReader(inputString);
+        when(request.getReader()).thenReturn(reader);
+
+        //Create
+
+        when(learningClassService.create(any(LearningClassDTO.class))).thenReturn(true);
 
         learningClassController.doPost(request, response);
 
@@ -163,9 +177,14 @@ class LearningClassControllerTest {
 
         //Update
         when(request.getParameter("action")).thenReturn("update");
-        when(request.getParameter("learningClassId")).thenReturn(learningClass.getLearningClassId());
-        when(request.getParameter("title")).thenReturn("Lala").thenReturn(learningClass.getTitle());
-        when(request.getParameter("description")).thenReturn("Tralala").thenReturn(learningClass.getDescription());
+
+        LearningClassDTO learningClass = new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Class");
+
+        String learningClassJson = new Gson().toJson(learningClass);
+
+        Reader inputString = new StringReader(learningClassJson);
+        BufferedReader reader = new BufferedReader(inputString);
+        when(request.getReader()).thenReturn(reader);
 
 
         learningClassController.doPost(request, response);
@@ -181,9 +200,14 @@ class LearningClassControllerTest {
 
         //Update
         when(request.getParameter("action")).thenReturn("update");
-        when(request.getParameter("learningClassId")).thenReturn(learningClass.getLearningClassId());
-        when(request.getParameter("title")).thenReturn(learningClass.getTitle());
-        when(request.getParameter("description")).thenReturn(learningClass.getDescription());
+
+        LearningClassDTO learningClass = new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Class");
+
+        String learningClassJson = new Gson().toJson(learningClass);
+
+        Reader inputString = new StringReader(learningClassJson);
+        BufferedReader reader = new BufferedReader(inputString);
+        when(request.getReader()).thenReturn(reader);
 
         when(learningClassService.update(learningClass)).thenReturn(true);
 
@@ -198,13 +222,15 @@ class LearningClassControllerTest {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
         //Delete
-
         when(request.getParameter("action")).thenReturn("delete");
-        when(request.getParameter("learningClassId")).thenReturn(learningClass.getLearningClassId());
-        when(request.getParameter("title")).thenReturn("Lala").thenReturn(learningClass.getTitle());
-        when(request.getParameter("description")).thenReturn("Tralala").thenReturn(learningClass.getDescription());
 
-        when(learningClassService.delete(learningClass)).thenReturn(true).thenReturn(false);
+        LearningClassDTO learningClass = new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Class");
+
+        String learningClassJson = new Gson().toJson(learningClass);
+
+        Reader inputString = new StringReader(learningClassJson);
+        BufferedReader reader = new BufferedReader(inputString);
+        when(request.getReader()).thenReturn(reader);
 
         learningClassController.doPost(request, response);
 
@@ -217,11 +243,14 @@ class LearningClassControllerTest {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
         //Delete
-
         when(request.getParameter("action")).thenReturn("delete");
-        when(request.getParameter("learningClassId")).thenReturn(learningClass.getLearningClassId());
-        when(request.getParameter("title")).thenReturn(learningClass.getTitle());
-        when(request.getParameter("description")).thenReturn(learningClass.getDescription());
+        LearningClassDTO learningClass = new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Class");
+
+        String learningClassJson = new Gson().toJson(learningClass);
+
+        Reader inputString = new StringReader(learningClassJson);
+        BufferedReader reader = new BufferedReader(inputString);
+        when(request.getReader()).thenReturn(reader);
 
         when(learningClassService.delete(learningClass)).thenReturn(true).thenReturn(false);
 

@@ -8,7 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.restservice.entities.Enrollment;
 import org.restservice.entities.LearningClass;
+import org.restservice.entities.LearningClassDTO;
 import org.restservice.entities.Student;
 import org.restservice.repositories.LearningClassRepository;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -32,18 +34,34 @@ class LearningClassServiceTest {
 
     private EnrollmentService enrollmentService;
 
+    private LearningClass learningClass;
+
+    private LearningClassDTO learningClassDTO;
+
     @BeforeEach
     public void setUp() {
         learningClassRepository = mock(LearningClassRepository.class);
         enrollmentService = mock(EnrollmentService.class);
         learningClassService = new LearningClassService(learningClassRepository, enrollmentService);
+        learningClassDTO = new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Description");
+        learningClass = new LearningClass(learningClassDTO);
     }
 
     @Test
     void create() {
         doReturn(true).when(learningClassRepository).create(any(LearningClass.class));
-        boolean result = learningClassService.create(new LearningClass("Test", "description"));
+        when(learningClassRepository.create(any(LearningClass.class))).thenReturn(true);
+        boolean result = learningClassService.create(new LearningClassDTO(UUID.randomUUID().toString(),"Test", "description"));
         assertTrue(result);
+
+        Set<String> students = new HashSet<>();
+        students.add(UUID.randomUUID().toString());
+        learningClassDTO.setAttendingStudents(students);
+
+        result = learningClassService.create(learningClassDTO);
+        assertTrue(result);
+        verify(enrollmentService, atLeastOnce()).create(any(Enrollment.class));
+
     }
 
     @Test
@@ -61,24 +79,23 @@ class LearningClassServiceTest {
 
     @Test
     void update() {
-        LearningClass toBeUpdated = new LearningClass("Test", "Blind");
-        when(learningClassRepository.update(toBeUpdated)).thenReturn(true);
-        boolean result = learningClassService.update(new LearningClass("Test", "Kill"));
+        when(learningClassRepository.update(learningClass)).thenReturn(true);
+
+        boolean result = learningClassService.update(new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Kill"));
         assertFalse(result);
 
-        result = learningClassService.update(toBeUpdated);
+        result = learningClassService.update(learningClassDTO);
         assertTrue(result);
     }
 
     @Test
     void delete() {
-        LearningClass toBeDeleted = new LearningClass("Test", "Test");
-        when(learningClassRepository.delete(toBeDeleted)).thenReturn(true).thenReturn(false);
+        when(learningClassRepository.delete(learningClass)).thenReturn(true).thenReturn(false);
 
-        boolean result = learningClassService.delete(new LearningClass("Test", "Lol"));
+        boolean result = learningClassService.delete(new LearningClassDTO(UUID.randomUUID().toString(), "Test", "Lol"));
         assertFalse(result);
 
-        result = learningClassService.delete(toBeDeleted);
+        result = learningClassService.delete(learningClassDTO);
         assertTrue(result);
     }
 

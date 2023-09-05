@@ -2,18 +2,17 @@ package org.restservice.controllers;
 
 import com.google.gson.Gson;
 import org.restservice.entities.LearningClass;
-import org.restservice.entities.Student;
+import org.restservice.entities.LearningClassDTO;
 import org.restservice.factories.Action;
 import org.restservice.services.EnrollmentService;
 import org.restservice.services.LearningClassService;
-import org.restservice.services.Service;
-import org.restservice.services.StudentService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -29,7 +28,7 @@ public class LearningClassController extends HttpServlet {
 
     private final LearningClassService service;
 
-    private final HashMap<String, Action<LearningClass, UUID>> actionHashMap = new HashMap<>();
+    private final HashMap<String, Action<LearningClassService>> actionHashMap = new HashMap<>();
 
     public LearningClassController(EnrollmentService service) throws SQLException {
         this.service = new LearningClassService(service);
@@ -42,19 +41,24 @@ public class LearningClassController extends HttpServlet {
     }
 
     private void createActionMap() {
-        actionHashMap.put("create", new Action<LearningClass, UUID>() {
+        actionHashMap.put("create", new Action<>() {
             @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
-                String title = request.getParameter("title");
-                String description = request.getParameter("description");
-                if (service.create(new LearningClass(title, description))) response.setStatus(HttpServletResponse.SC_OK);
-                else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            public void perform(HttpServletRequest request, HttpServletResponse response, LearningClassService service) {
+                try {
+                    BufferedReader reader = request.getReader();
+                    LearningClassDTO learningClassDTO = new Gson().fromJson(reader, LearningClassDTO.class);
+                    if (service.create(learningClassDTO)) response.setStatus(HttpServletResponse.SC_OK);
+                    else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
             }
         });
 
-        actionHashMap.put("get", new Action<LearningClass, UUID>() {
+        actionHashMap.put("get", new Action<>() {
             @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
+            public void perform(HttpServletRequest request, HttpServletResponse response, LearningClassService service) {
                 UUID learningClassId = UUID.fromString(request.getParameter("learningClassId"));
                 Optional<LearningClass> learningClass = service.read(learningClassId);
                 if (learningClass.isPresent()) {
@@ -74,49 +78,55 @@ public class LearningClassController extends HttpServlet {
             }
         });
 
-        actionHashMap.put("update", new Action<LearningClass, UUID>() {
+        actionHashMap.put("update", new Action<>() {
             @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
-                String learningClassId = request.getParameter("learningClassId");
-                String title = request.getParameter("title");
-                String description = request.getParameter("description");
-                if (service.update(new LearningClass(learningClassId, title, description))) response.setStatus(HttpServletResponse.SC_OK);
-                else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            public void perform(HttpServletRequest request, HttpServletResponse response, LearningClassService service) {
+                try {
+                    BufferedReader reader = request.getReader();
+                    LearningClassDTO learningClassDTO = new Gson().fromJson(reader, LearningClassDTO.class);
+                    if (service.update(learningClassDTO)) response.setStatus(HttpServletResponse.SC_OK);
+                    else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
             }
         });
 
-        actionHashMap.put("delete", new Action<LearningClass, UUID>() {
+        actionHashMap.put("delete", new Action<>() {
             @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
-                String learningClassId = request.getParameter("learningClassId");
-                String title = request.getParameter("title");
-                String description = request.getParameter("description");
-                if (service.delete(new LearningClass(learningClassId, title, description))) response.setStatus(HttpServletResponse.SC_OK);
-                else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            public void perform(HttpServletRequest request, HttpServletResponse response, LearningClassService service) {
+                BufferedReader reader = null;
+                try {
+                    reader = request.getReader();
+                    LearningClassDTO learningClassDTO = new Gson().fromJson(reader, LearningClassDTO.class);
+                    if (service.delete(learningClassDTO)) response.setStatus(HttpServletResponse.SC_OK);
+                    else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+
             }
         });
 
-        actionHashMap.put("getWithStudents", new Action<LearningClass, UUID>() {
+        actionHashMap.put("getWithStudents", new Action<>() {
             @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
-                if (service instanceof LearningClassService learningClassService) {
-                    Optional<LearningClass> learningClass = learningClassService.getLearningClassWithAttendingStudents(UUID.fromString(request.getParameter("learningClassId")));
-                    if (learningClass.isPresent()) {
-                        try {
-                            PrintWriter out = response.getWriter();
-                            String learningClassJson = new Gson().toJson(learningClass.get());
-                            out.print(learningClassJson);
-                            out.flush();
-                            response.setStatus(HttpServletResponse.SC_OK);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                        }
-                    } else {
-                        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            public void perform(HttpServletRequest request, HttpServletResponse response, LearningClassService service) {
+                Optional<LearningClass> learningClass = service.getLearningClassWithAttendingStudents(UUID.fromString(request.getParameter("learningClassId")));
+                if (learningClass.isPresent()) {
+                    try {
+                        PrintWriter out = response.getWriter();
+                        String learningClassJson = new Gson().toJson(learningClass.get());
+                        out.print(learningClassJson);
+                        out.flush();
+                        response.setStatus(HttpServletResponse.SC_OK);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
         });
@@ -136,9 +146,9 @@ public class LearningClassController extends HttpServlet {
         String actionType = request.getParameter("action");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        Action<LearningClass, UUID> action = actionHashMap.getOrDefault(actionType, new Action<LearningClass, UUID>() {
+        Action action = actionHashMap.getOrDefault(actionType, new Action<>() {
             @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, Service<LearningClass, UUID> service) {
+            public void perform(HttpServletRequest request, HttpServletResponse response, LearningClassService service) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
         });

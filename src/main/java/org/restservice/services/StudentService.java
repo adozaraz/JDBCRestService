@@ -1,16 +1,16 @@
 package org.restservice.services;
 
+import org.restservice.entities.Enrollment;
 import org.restservice.entities.Student;
+import org.restservice.entities.StudentDTO;
 import org.restservice.repositories.StudentRepository;
 import org.restservice.repositories.StudentRepositoryImpl;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-public class StudentService implements Service<Student, UUID> {
+public class StudentService {
     private final StudentRepository studentRepository;
 
     private final EnrollmentService enrollmentService;
@@ -25,19 +25,26 @@ public class StudentService implements Service<Student, UUID> {
         this.enrollmentService = enrollmentService;
     }
 
-    @Override
-    public boolean create(Student student) { return this.studentRepository.create(student); }
+    public boolean create(StudentDTO student) {
+        if (this.studentRepository.create(new Student(student))) {
+            if (student.getLearningClasses() != null) {
+                for (String learningClassId :
+                        student.getLearningClasses()) {
+                    this.enrollmentService.create(new Enrollment(student.getStudentId(), learningClassId));
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
-    @Override
     public Optional<Student> read(UUID uuid) { return this.studentRepository.read(uuid); }
 
-    @Override
-    public boolean update(Student student) { return this.studentRepository.update(student); }
+    public boolean update(StudentDTO student) { return this.studentRepository.update(new Student(student)); }
 
-    @Override
-    public boolean delete(Student student) {
+    public boolean delete(StudentDTO student) {
         this.enrollmentService.deleteEnrollmentByStudentId(student.getStudentId());
-        return this.studentRepository.delete(student);
+        return this.studentRepository.delete(new Student(student));
     }
 
     public Iterable<Student> findAll() { return this.studentRepository.findAll(); }
