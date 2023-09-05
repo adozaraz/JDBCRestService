@@ -29,46 +29,42 @@ class StudentRepositoryImplTest {
     static {
         // Postgres JDBC driver uses JUL; disable it to avoid annoying, irrelevant, stderr logs during connection testing
         LogManager.getLogManager().getLogger("").setLevel(Level.OFF);
+        try {
+            DbConnection conn = DbConnection.getInstance();
+            properties = conn.getProps();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-    private static final String DB_NAME = "RESTService";
-
-    private static final String USER = "adozaraz";
-
-    private static final String PASSWORD = "12345";
 
     @Container
     private PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
-            .withDatabaseName(DB_NAME)
-            .withUsername(USER)
-            .withPassword(PASSWORD)
-            .withInitScript("db/db.sql");
+            .withDatabaseName(properties.getProperty("db.database"))
+            .withUsername(properties.getProperty("db.user"))
+            .withPassword(properties.getProperty("db.password"))
+            .withInitScript("db/db.sql");;
 
     private StudentRepository studentRepository;
 
     private Student student;
 
-    private Connection conn;
+    private static Properties properties;
 
     @BeforeEach
     public void setUp() throws SQLException {
+
         postgres.start();
 
-        student = new Student("Boradulin", "Nikita");
-
         DbConnection con = DbConnection.getInstance();
-        Properties props = new Properties();
-        props.put("db.url", postgres.getJdbcUrl());
-        props.put("user", postgres.getUsername());
-        props.put("password", postgres.getPassword());
-        con.changeProps(props);
+        con.connectToServer();
+
+        student = new Student("Boradulin", "Nikita");
         studentRepository = new StudentRepositoryImpl();
     }
 
     @AfterEach
-    public void after() throws SQLException {
+    public void after() {
         postgres.close();
-        conn.close();
     }
 
     @Test

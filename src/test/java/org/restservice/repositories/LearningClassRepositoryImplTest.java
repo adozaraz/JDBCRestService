@@ -26,42 +26,38 @@ class LearningClassRepositoryImplTest {
     static {
         // Postgres JDBC driver uses JUL; disable it to avoid annoying, irrelevant, stderr logs during connection testing
         LogManager.getLogManager().getLogger("").setLevel(Level.OFF);
+        try {
+            DbConnection con = DbConnection.getInstance();
+            properties = con.getProps();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static final String DB_NAME = "RESTService";
-
-    private static final String USER = "adozaraz";
-
-    private static final String PASSWORD = "12345";
-
     @Container
-    public final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
-            .withDatabaseName(DB_NAME)
-            .withUsername(USER)
-            .withPassword(PASSWORD)
+    public PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
+            .withDatabaseName(properties.getProperty("db.database"))
+            .withUsername(properties.getProperty("db.username"))
+            .withPassword(properties.getProperty("db.password"))
             .withInitScript("db/db.sql");
 
     private LearningClassRepository learningClassRepository;
 
-    private Connection conn;
+    private static Properties properties;
 
     @BeforeEach
     public void setUp() throws SQLException {
         postgres.start();
 
         DbConnection con = DbConnection.getInstance();
-        Properties props = new Properties();
-        props.put("db.url", postgres.getJdbcUrl());
-        props.put("db.user", postgres.getUsername());
-        props.put("db.password", postgres.getPassword());
-        con.changeProps(props);
+        con.connectToServer();
+
         learningClassRepository = new LearningClassRepositoryImpl();
     }
 
     @AfterEach
     public void after() throws SQLException {
         postgres.stop();
-        conn.close();
     }
 
     @Test

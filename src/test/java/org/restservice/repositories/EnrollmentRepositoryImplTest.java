@@ -25,19 +25,19 @@ class EnrollmentRepositoryImplTest {
     static {
         // Postgres JDBC driver uses JUL; disable it to avoid annoying, irrelevant, stderr logs during connection testing
         LogManager.getLogManager().getLogger("").setLevel(Level.OFF);
+        try {
+            DbConnection connection = DbConnection.getInstance();
+            props = connection.getProps();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-    private static final String DB_NAME = "RESTService";
-
-    private static final String USER = "adozaraz";
-
-    private static final String PASSWORD = "12345";
 
     @Container
     private PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12"))
-            .withDatabaseName(DB_NAME)
-            .withUsername(USER)
-            .withPassword(PASSWORD)
+            .withDatabaseName(props.getProperty("db.database"))
+            .withUsername(props.getProperty("db.user"))
+            .withPassword(props.getProperty("db.password"))
             .withInitScript("db/db.sql");
 
     private EnrollmentRepository enrollmentRepository;
@@ -49,18 +49,16 @@ class EnrollmentRepositoryImplTest {
     private Student student;
     private LearningClass learningClass;
 
-    private Connection conn;
+    private static Properties props;
 
     @BeforeEach
     public void setUp() throws SQLException {
+
         postgres.start();
 
         DbConnection con = DbConnection.getInstance();
-        Properties props = new Properties();
-        props.put("db.url", postgres.getJdbcUrl());
-        props.put("db.user", postgres.getUsername());
-        props.put("db.password", postgres.getPassword());
-        con.changeProps(props);
+        con.connectToServer();
+
         enrollmentRepository = new EnrollmentRepositoryImpl();
         studentRepository = new StudentRepositoryImpl();
         learningClassRepository = new LearningClassRepositoryImpl();
@@ -71,7 +69,6 @@ class EnrollmentRepositoryImplTest {
     @AfterEach
     public void after() throws SQLException {
         postgres.stop();
-        conn.close();
     }
 
     @Test
