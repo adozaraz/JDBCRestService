@@ -93,4 +93,8 @@ public class DbConnection {
     public int hashCode() {
         return Objects.hash(props, fileProperties);
     }
+
+    public void deleteInstance() {
+        INSTANCE = null;
+    }
 }

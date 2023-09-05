@@ -64,6 +64,7 @@ class LearningClassRepositoryImplTest {
     public void after() throws SQLException {
         DbConnection con = DbConnection.getInstance();
         con.closeConnection();
+        con.deleteInstance();
         postgres.stop();
     }
 

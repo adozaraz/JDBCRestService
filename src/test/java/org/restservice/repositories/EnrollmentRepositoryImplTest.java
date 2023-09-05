@@ -69,7 +69,10 @@ class EnrollmentRepositoryImplTest {
 
     @AfterEach
     public void after() throws SQLException {
+        DbConnection con = DbConnection.getInstance();
+        con.closeConnection();
         postgres.stop();
+        con.deleteInstance();
     }
 
     @Test

@@ -65,7 +65,10 @@ class StudentRepositoryImplTest {
     }
 
     @AfterEach
-    public void after() {
+    public void after() throws SQLException {
+        DbConnection con = DbConnection.getInstance();
+        con.closeConnection();
+        con.deleteInstance();
         postgres.close();
     }
 
