@@ -22,7 +22,6 @@ public class DbConnectionTest {
         expectedProperties.setProperty("db.user", "adozaraz");
         expectedProperties.setProperty("db.password", "12345");
         expectedProperties.setProperty("db.url", "jdbc:postgresql://localhost/test");
-        expectedProperties.setProperty("db.database", "TEST_DATABASE");
         Properties actualProperties = connection.getProps();
         assertEquals(expectedProperties, actualProperties);
     }

@@ -28,6 +28,7 @@ public class DbConnection {
         this.fileProperties = fileProperties;
         File file = new File(getClass().getClassLoader().getResource(fileProperties).getFile());
         try (InputStream inputStream = new FileInputStream(file)) {
+            System.out.println(file.getAbsolutePath());
             props.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,32 +52,22 @@ public class DbConnection {
 
     public Properties getProps() { return this.props; }
 
-    public void saveProperties() {
-        try (OutputStream outputStream = new FileOutputStream(fileProperties)) {
-            props.store(outputStream, null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void changeUsernameProperty(String username) throws SQLException {
         if (connection != null) closeConnection();
         props.setProperty("db.user", username);
-        saveProperties();
         connectToServer();
     }
 
     public void changePasswordProperty(String password) throws SQLException {
         if (connection != null) closeConnection();
         props.setProperty("db.password", password);
-        saveProperties();
         connectToServer();
     }
 
     public void changeURL(String url) throws SQLException {
         if (connection != null) closeConnection();
         props.setProperty("db.url", url);
-        saveProperties();
         connectToServer();
     }
 
@@ -87,7 +78,6 @@ public class DbConnection {
     public void changeProps(Properties props) throws SQLException {
         if (connection != null) closeConnection();
         this.props = props;
-        saveProperties();
         connectToServer();
     }
 
