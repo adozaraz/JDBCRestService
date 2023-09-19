@@ -1,22 +1,24 @@
 package org.restservice.entities;
 
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+@Entity
+@Table
 public class LearningClass {
+    @Id
+    @GeneratedValue
     private UUID learningClassId;
     private String title;
     private String description;
 
-    private Set<Student> attendingStudents;
+    @ManyToMany(mappedBy = "learningClasses")
+    private Set<Student> attendingStudents = new HashSet<>();
 
     public LearningClass() {
-        this.learningClassId = UUID.randomUUID();
-        this.title = null;
-        this.description = null;
-        this.attendingStudents = null;
     }
 
     public LearningClass(String title, String description) {

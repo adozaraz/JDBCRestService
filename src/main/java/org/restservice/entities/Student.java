@@ -1,22 +1,26 @@
 package org.restservice.entities;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+@Entity
+@Table
 public class Student {
+    @Id
+    @GeneratedValue
     private UUID studentId;
     private String firstName;
     private String lastName;
 
-    private Set<LearningClass> learningClasses;
+    private Set<LearningClass> learningClasses = new HashSet<>();
 
     public Student() {
-        this.studentId = UUID.randomUUID();
-        this.firstName = null;
-        this.lastName = null;
-        this.learningClasses = null;
     }
 
     public Student(String firstName, String lastName) {
@@ -95,6 +99,19 @@ public class Student {
 
     public void setLearningClasses(Set<LearningClass> learningClasses) {
         this.learningClasses = learningClasses;
+    }
+
+    public void addLearningClass(LearningClass learningClass) {
+        this.learningClasses.add(learningClass);
+        learningClass.getAttendingStudents().add(this);
+    }
+
+    public void removeLearningClass(String learningClassId) {
+        LearningClass learningClass = this.learningClasses.stream().filter(t -> Objects.equals(t.getLearningClassId(), learningClassId)).findFirst().orElse(null);
+        if (learningClass != null) {
+            this.learningClasses.remove(learningClass);
+            learningClass.getAttendingStudents().remove(this);
+        }
     }
 
     @Override
