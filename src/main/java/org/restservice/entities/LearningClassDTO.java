@@ -8,9 +8,9 @@ public class LearningClassDTO {
     private String title;
     private String description;
 
-    private Set<String> attendingStudents;
+    private Set<StudentDTO> attendingStudents;
 
-    public LearningClassDTO(String learningClassId, String title, String description, Set<String> attendingStudents) {
+    public LearningClassDTO(String learningClassId, String title, String description, Set<StudentDTO> attendingStudents) {
         this.learningClassId = learningClassId;
         this.title = title;
         this.description = description;
@@ -45,11 +45,11 @@ public class LearningClassDTO {
     }
 
 
-    public Set<String> getAttendingStudents() {
+    public Set<StudentDTO> getAttendingStudents() {
         return attendingStudents;
     }
 
-    public void setAttendingStudents(Set<String> attendingStudents) {
+    public void setAttendingStudents(Set<StudentDTO> attendingStudents) {
         this.attendingStudents = attendingStudents;
     }
 

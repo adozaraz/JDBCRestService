@@ -27,21 +27,24 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/student")
 public class StudentController extends HttpServlet {
-    @Autowired
-    private StudentService service;
+    private final StudentService service;
+
+    public StudentController(StudentService service) {
+        this.service = service;
+    }
 
     @PostMapping("/create")
-    public Student createStudent(@RequestBody Student student) {
+    public StudentDTO createStudent(@RequestBody Student student) {
         return this.service.create(student);
     }
 
     @GetMapping("/get/{uuid}")
-    public Optional<Student> getStudent(@PathVariable UUID uuid) {
+    public StudentDTO getStudent(@PathVariable UUID uuid) {
         return this.service.read(uuid);
     }
 
     @PostMapping("/update")
-    public Student updateStudent(@RequestBody Student student) {
+    public StudentDTO updateStudent(@RequestBody Student student) {
         return this.service.update(student);
     }
 
@@ -51,22 +54,22 @@ public class StudentController extends HttpServlet {
     }
 
     @GetMapping("/get/all")
-    public Iterable<Student> getAllStudents() {
+    public Iterable<StudentDTO> getAllStudents() {
         return this.service.findAll();
     }
 
     @GetMapping("/get/firstName/{firstName}")
-    public Optional<Student> getByFirstName(@PathVariable String firstName) {
+    public StudentDTO getByFirstName(@PathVariable String firstName) {
         return this.service.findByFirstName(firstName);
     }
 
     @GetMapping("/get/lastName/{lastName}")
-    public Optional<Student> getByLastName(@PathVariable String lastName) {
+    public StudentDTO getByLastName(@PathVariable String lastName) {
         return this.service.findByLastName(lastName);
     }
 
     @GetMapping("/get/fullName/{firstName}/{lastName}")
-    public Optional<Student> getByFullName(@PathVariable String firstName, @PathVariable String lastName) {
+    public StudentDTO getByFullName(@PathVariable String firstName, @PathVariable String lastName) {
         return this.service.findByFullName(firstName, lastName);
     }
 }

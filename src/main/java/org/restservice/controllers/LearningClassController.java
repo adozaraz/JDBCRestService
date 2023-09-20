@@ -27,23 +27,24 @@ import java.util.UUID;
 @RequestMapping("/learningClass")
 public class LearningClassController extends HttpServlet {
 
-    @Autowired
-    private LearningClassService service;
+    private final LearningClassService service;
 
-    private final HashMap<String, Action<LearningClassService>> actionHashMap = new HashMap<>();
+    public LearningClassController(LearningClassService service) {
+        this.service = service;
+    }
 
     @PostMapping("/create")
-    public LearningClass createLearningClass(@RequestBody LearningClass learningClass) {
+    public LearningClassDTO createLearningClass(@RequestBody LearningClass learningClass) {
         return this.service.create(learningClass);
     }
 
     @GetMapping("/get/{uuid}")
-    public Optional<LearningClass> getLearningCLass(@PathVariable UUID uuid) {
+    public LearningClassDTO getLearningCLass(@PathVariable UUID uuid) {
         return this.service.read(uuid);
     }
 
     @PostMapping("/update")
-    public LearningClass updateLearningClass(@RequestBody LearningClass learningClass) {
+    public LearningClassDTO updateLearningClass(@RequestBody LearningClass learningClass) {
         return this.service.update(learningClass);
     }
 

@@ -30,6 +30,7 @@ class LearningClassControllerTest {
 
     private LearningClass learningClass;
 
+
     @BeforeEach
     public void setUp() {
         learningClass = new LearningClass("Infinite", "Power");

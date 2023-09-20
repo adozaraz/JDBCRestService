@@ -2,6 +2,7 @@ package org.restservice.services;
 
 import org.restservice.entities.Student;
 import org.restservice.entities.StudentDTO;
+import org.restservice.mappers.StudentMapper;
 import org.restservice.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,23 +17,38 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
-    public Student create(Student student) {
-        return studentRepository.save(student);
+    @Autowired
+    StudentMapper studentMapper;
+
+    public StudentDTO create(Student student) {
+        return studentMapper.studentToStudentDTO(studentRepository.save(student));
     }
 
-    public Optional<Student> read(UUID uuid) { return this.studentRepository.findById(uuid); }
+    public StudentDTO read(UUID uuid) {
+        Optional<Student> result = this.studentRepository.findById(uuid);
+        return result.map(student -> studentMapper.studentToStudentDTO(student)).orElse(null);
+    }
 
-    public Student update(Student student) { return this.studentRepository.save(student); }
+    public StudentDTO update(Student student) { return studentMapper.studentToStudentDTO(this.studentRepository.save(student)); }
 
     public void delete(Student student) {
         this.studentRepository.delete(student);
     }
 
-    public Iterable<Student> findAll() { return this.studentRepository.findAll(); }
+    public Iterable<StudentDTO> findAll() { return studentMapper.mapToStudentDTO(this.studentRepository.findAll()); }
 
-    public Optional<Student> findByFirstName(String firstName) { return this.studentRepository.findByFirstName(firstName); }
+    public StudentDTO findByFirstName(String firstName) {
+        Optional<Student> result = this.studentRepository.findByFirstName(firstName);
+        return result.map(student -> studentMapper.studentToStudentDTO(student)).orElse(null);
+    }
 
-    public Optional<Student> findByLastName(String lastName) { return this.studentRepository.findByLastName(lastName); }
+    public StudentDTO findByLastName(String lastName) {
+        Optional<Student> result = this.studentRepository.findByLastName(lastName);
+        return result.map(student -> studentMapper.studentToStudentDTO(student)).orElse(null);
+    }
 
-    public Optional<Student> findByFullName(String firstName, String lastName) { return this.studentRepository.findByFullName(firstName, lastName); }
+    public StudentDTO findByFullName(String firstName, String lastName) {
+        Optional<Student> result = this.studentRepository.findByFullName(firstName, lastName);
+        return result.map(student -> studentMapper.studentToStudentDTO(student)).orElse(null);
+    }
 }

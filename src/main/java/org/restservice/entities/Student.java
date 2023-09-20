@@ -1,9 +1,6 @@
 package org.restservice.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -18,6 +15,12 @@ public class Student {
     private String firstName;
     private String lastName;
 
+    @ManyToMany
+    @JoinTable(
+            name = "enrollments",
+            joinColumns = @JoinColumn(name = "student"),
+            inverseJoinColumns = @JoinColumn(name = "learningClass")
+    )
     private Set<LearningClass> learningClasses = new HashSet<>();
 
     public Student() {
