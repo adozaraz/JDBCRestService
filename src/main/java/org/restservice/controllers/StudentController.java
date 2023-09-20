@@ -7,6 +7,9 @@ import org.restservice.entities.StudentDTO;
 import org.restservice.factories.Action;
 import org.restservice.services.EnrollmentService;
 import org.restservice.services.StudentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,215 +24,49 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-@WebServlet(
-        name = "StudentController",
-        urlPatterns = "/students"
-)
+@Controller
+@RequestMapping("/student")
 public class StudentController extends HttpServlet {
-    private final StudentService service;
-    private final HashMap<String, Action<StudentService>> actionHashMap = new HashMap<>();
+    @Autowired
+    private StudentService service;
 
-    public StudentController(EnrollmentService enrollmentService) throws SQLException {
-        this.service = new StudentService(enrollmentService);
-        createActionMap();
+    @PostMapping("/create")
+    public Student createStudent(@RequestBody Student student) {
+        return this.service.create(student);
     }
 
-    public StudentController(StudentService service) {
-        this.service = service;
-        createActionMap();
+    @GetMapping("/get/{uuid}")
+    public Optional<Student> getStudent(@PathVariable UUID uuid) {
+        return this.service.read(uuid);
     }
 
-    private void createActionMap() {
-        actionHashMap.put("create", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                BufferedReader reader = null;
-                try {
-                    reader = request.getReader();
-                    StudentDTO studentDTO = new Gson().fromJson(reader, StudentDTO.class);
-                    if (service.create(studentDTO)) response.setStatus(HttpServletResponse.SC_OK);
-                    else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                }
-
-            }
-        });
-        actionHashMap.put("get", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                UUID studentId = UUID.fromString(request.getParameter("studentId"));
-                Optional<Student> student = service.read(studentId);
-                if (student.isPresent()) {
-                    try {
-                        PrintWriter out = response.getWriter();
-                        String studentJson = new Gson().toJson(student.get());
-                        out.print(studentJson);
-                        out.flush();
-                        response.setStatus(HttpServletResponse.SC_OK);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    }
-                } else response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            }
-        });
-
-        actionHashMap.put("update", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                BufferedReader reader = null;
-                try {
-                    reader = request.getReader();
-                    StudentDTO studentDTO = new Gson().fromJson(reader, StudentDTO.class);
-                    if (service.update(studentDTO)) response.setStatus(HttpServletResponse.SC_OK);
-                    else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        actionHashMap.put("delete", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                BufferedReader reader = null;
-                try {
-                    reader = request.getReader();
-                    StudentDTO studentDTO = new Gson().fromJson(reader, StudentDTO.class);
-                    if (service.delete(studentDTO)) response.setStatus(HttpServletResponse.SC_OK);
-                    else response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        actionHashMap.put("getAll", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                Iterable<Student> students = service.findAll();
-                try {
-                    PrintWriter out = response.getWriter();
-                    for (Student student : students) {
-                        String studentJson = new Gson().toJson(student);
-                        out.println(studentJson);
-                    }
-                    out.flush();
-                    response.setStatus(HttpServletResponse.SC_OK);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                }
-            }
-        });
-
-        actionHashMap.put("getByFirstName", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                Optional<Student> student = service.findByFirstName(request.getParameter("firstName"));
-                if (student.isPresent()) {
-                    try {
-                        PrintWriter out = response.getWriter();
-                        String studentJson = new Gson().toJson(student.get());
-                        out.println(studentJson);
-                        out.flush();
-                        response.setStatus(HttpServletResponse.SC_OK);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    }
-                } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                }
-            }
-        });
-
-        actionHashMap.put("getByLastName", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                Optional<Student> student = service.findByLastName(request.getParameter("lastName"));
-                if (student.isPresent()) {
-                    try {
-                        PrintWriter out = response.getWriter();
-                        String studentJson = new Gson().toJson(student.get());
-                        out.println(studentJson);
-                        out.flush();
-                        response.setStatus(HttpServletResponse.SC_OK);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    }
-                } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                }
-            }
-        });
-
-        actionHashMap.put("getByFullName", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                Optional<Student> student = service.findByFullName(request.getParameter("firstName"), request.getParameter("lastName"));
-                if (student.isPresent()) {
-                    try {
-                        PrintWriter out = response.getWriter();
-                        String studentJson = new Gson().toJson(student.get());
-                        out.println(studentJson);
-                        out.flush();
-                        response.setStatus(HttpServletResponse.SC_OK);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    }
-                } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                }
-            }
-        });
-
-        actionHashMap.put("getWithClasses", new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                Optional<Student> student = service.getStudentWithAttendingClasses(UUID.fromString(request.getParameter("studentId")));
-                if (student.isPresent()) {
-                    try {
-                        PrintWriter out = response.getWriter();
-                        String studentJson = new Gson().toJson(student.get());
-                        out.println(studentJson);
-                        out.flush();
-                        response.setStatus(HttpServletResponse.SC_OK);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    }
-                } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                }
-            }
-        });
+    @PostMapping("/update")
+    public Student updateStudent(@RequestBody Student student) {
+        return this.service.update(student);
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processRequest(request, response);
+    @DeleteMapping("/delete")
+    public void deleteStudent(@RequestBody Student student) {
+        this.service.delete(student);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processRequest(request, response);
+    @GetMapping("/get/all")
+    public Iterable<Student> getAllStudents() {
+        return this.service.findAll();
     }
 
-    private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String actionType = request.getParameter("action");
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        Action<StudentService> action = actionHashMap.getOrDefault(actionType, new Action<>() {
-            @Override
-            public void perform(HttpServletRequest request, HttpServletResponse response, StudentService service) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
-        });
-        action.perform(request, response, service);
+    @GetMapping("/get/firstName/{firstName}")
+    public Optional<Student> getByFirstName(@PathVariable String firstName) {
+        return this.service.findByFirstName(firstName);
+    }
+
+    @GetMapping("/get/lastName/{lastName}")
+    public Optional<Student> getByLastName(@PathVariable String lastName) {
+        return this.service.findByLastName(lastName);
+    }
+
+    @GetMapping("/get/fullName/{firstName}/{lastName}")
+    public Optional<Student> getByFullName(@PathVariable String firstName, @PathVariable String lastName) {
+        return this.service.findByFullName(firstName, lastName);
     }
 }

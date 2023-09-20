@@ -25,7 +25,7 @@ public class LearningClassService {
 
     public LearningClass update(LearningClass learningClass) { return this.learningClassRepository.save(learningClass); }
 
-    public void delete(LearningClassDTO learningClass) {
-        this.learningClassRepository.delete(new LearningClass(learningClass));
+    public void delete(LearningClass learningClass) {
+        this.learningClassRepository.delete(learningClass);
     }
 }
